@@ -2,15 +2,18 @@
 title: Big list of options
 ---
 
-### Core functionality
+### 核心功能(Core functionality)
 
-#### external
-Type: `(string | RegExp)[] | RegExp | string | (id: string, parentId: string, isResolved: boolean) => boolean`<br>
-CLI: `-e`/`--external <external-id,another-external-id,...>`
+#### 外部依赖(external)
+类型: `(string | RegExp)[] | RegExp | string | (id: string, parentId: string, isResolved: boolean) => boolean`<br>
+命令参数: `-e`/`--external <external-id,another-external-id,...>`
 
+external 用于排除一些不需要打包到 bundle 中的模块，它的值可以是一个函数，这个函数接受模块 ID `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含），也可以是一个由模块ID构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外。external 还可以取值单个模块 ID 或者 单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
 Either a function that takes an `id` and returns `true` (external) or `false` (not external), or an `Array` of module IDs, or regular expressions to match module IDs, that should remain external to the bundle. Can also be just a single ID or regular expression. The matched IDs should be either:
 
+1. import 语句中外部依赖的包名。比如，如果标记 `import "dependency.js"` 为外部依赖，那么模块 ID 使用 `"dependency.js"`，而如果标记 `import "dependency"` 为外部依赖，那么模块 ID 就是 `"dependency"`。
 1. the name of an external dependency, exactly the way it is written in the import statement. I.e. to mark `import "dependency.js"` as external, use `"dependency.js"` while to mark `import "dependency"` as external, use `"dependency"`.
+2. 绝对路径。（比如文件的绝对路径）
 2. a resolved ID (like an absolute path to a file).
 
 ```js
@@ -27,37 +30,50 @@ export default {
 };
 ```
 
+注意，如果你想要将 `node_modules` 中导入的包当成外部依赖处理，你须要提前导入 [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve)，这样才能将 `import {rollup} from 'rollup'` 中 通过 `/node_modules/` 正则表达式匹配到的 rollup 当成外部依赖处理。
 Note that if you want to filter out package imports, e.g. `import {rollup} from 'rollup'`, via a `/node_modules/` regular expression, you need something like [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve) to resolve the imports to `node_modules` first.
 
+当用作命令行参数时，应该用逗号分隔的模块 ID 列表：
 When given as a command line argument, it should be a comma-separated list of IDs:
 
 ```bash
 rollup -i src/main.js ... -e foo,bar,baz
 ```
 
+使用函数时会提供三个参数 `(id, parent, isResolved)` ，这些参数可以为您提供更细粒度的控制：
 When providing a function, it is actually called with three parameters `(id, parent, isResolved)` that can give you more fine-grained control:
 
+* `id` 指相关模块中的 ID
 * `id` is the id of the module in question
+* `parent` 指执行导入的模块的 ID
 * `parent` is the id of the module doing the import
+* `isResolved` 指是否已经通过插件等方式解决模块依赖
 * `isResolved` signals whether the `id` has been resolved by e.g. plugins
 
+创建 iife 或 umd 包时，您需要通过 `output.globals` 选项来提供全局变量名称，以替换外部导入。
 When creating an `iife` or `umd` bundle, you will need to provide global variable names to replace your external imports via the `output.globals` option.
 
+如果是相对导入（即以 `./` 或 `../`开头）模块被标记为”外部依赖“，rollup 会把它们处理成系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，它们将会再次被转换为相对导入。举例：
 If a relative import, i.e. starting with `./` or `../`, is marked as "external", rollup will internally resolve the id to an absolute file system location so that different imports of the external module can be merged. When the resulting bundle is written, the import will again be converted to a relative import. Example:
 
 ```js
+// 输入
 // input
+// src/main.js （入口文件）
 // src/main.js (entry point)
 import x from '../external.js';
 import './nested/nested.js';
 console.log(x);
 
 // src/nested/nested.js
+// 如果导入依赖已存在，它们将指向同一个文件
 // the import would point to the same file if it existed
 import x from '../../external.js';
 console.log(x);
 
+// 输出
 // output
+// 不同的依赖将会被合并
 // the different imports are merged
 import x from '../external.js';
 
@@ -66,12 +82,14 @@ console.log(x);
 console.log(x);
 ```
 
+如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 入口文件或所有入口文件的公共目录。
 The conversion back to a relative import is done as if `output.file` or `output.dir` were in the same location as the entry point or the common base directory of all entry points if there is more than one.
 
-#### input
-Type: `string | string [] | { [entryName: string]: string }`<br>
-CLI: `-i`/`--input <filename>`
+#### 入口(input)
+类型: `string | string [] | { [entryName: string]: string }`<br>
+命令行参数: `-i`/`--input <filename>`
 
+入口（input）是指打包的入口文件，比如 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用入口数组或者入口对象映射，它们将被打包到单独的输出区块（chunks）。
 The bundle's entry point(s) (e.g. your `main.js` or `app.js` or `index.js`). If you provide an array of entry points or an object mapping names to entry points, they will be bundled to separate output chunks. Unless the [`output.file`](guide/en/#outputfile) option is used, generated chunk names will follow the [`output.entryFileNames`](guide/en/#outputentryfilenames) option. When using the object form, the `[name]` portion of the file name will be the name of the object property while for the array form, it will be the file name of the entry point.
 
 Note that it is possible when using the object form to put entry points into different sub-folders by adding a `/` to the name. The following will generate at least two entry chunks with the names `entry-a.js` and `entry-b/index.js`, i.e. the file `index.js` is placed in the folder `entry-b`:
@@ -286,7 +304,7 @@ export default (async () => ({
 
 (This example also demonstrates how to use an async IIFE and dynamic imports to avoid unnecessary module loading, which can be surprisingly slow.)
 
-### Advanced functionality
+### 进阶功能(Advanced functionality)
 
 #### cache
 Type: `RollupCache | false`
@@ -826,7 +844,7 @@ When this flag is enabled, Rollup will throw an error instead of showing a warni
 
 This flag is intended to be used by e.g. plugin authors to be able to adjust their plugins for upcoming major releases as early as possible.
 
-### Danger zone
+### 慎用选项(Danger zone)
 
 You probably don't need to use these options unless you know what you are doing!
 
@@ -1245,7 +1263,7 @@ const element = angular.element;
 
 In the example, the last line is always retained as accessing the `element` property could also throw an error if `angular` is e.g. `null`. To avoid this check, set `treeshake.propertyReadSideEffects` to `false` as well.
 
-### Experimental options
+### 实验选项(Experimental options)
 
 These options reflect new features that have not yet been fully finalized. Availability, behaviour and usage may therefore be subject to change between minor versions.
 
@@ -1276,7 +1294,7 @@ Whether to collect performance timings. When used from the command line or a con
 
 For each key, the first number represents the elapsed time while the second represents the change in memory consumption and the third represents the total memory consumption after this step. The order of these steps is the order used by `Object.keys`. Top level keys start with `#` and contain the timings of nested steps, i.e. in the example above, the 698ms of the `# BUILD` step include the 538ms of the `## parse modules` step.
 
-### Watch options
+### Watch选项(Watch options)
 
 Type: `{ buildDelay?: number, chokidar?: ChokidarOptions, clearScreen?: boolean, exclude?: string, include?: string, skipWrite?: boolean } | false`<br>
 Default: `{}`<br>
@@ -1358,7 +1376,7 @@ Default: `false`
 
 Whether to skip the `bundle.write()` step when a rebuild is triggered.
 
-### Deprecated options
+### 废弃选项(Deprecated options)
 
 ☢️ These options have been deprecated and may be removed in a future Rollup version.
 
