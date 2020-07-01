@@ -2,9 +2,9 @@
 title: Big list of options
 ---
 
-### 核心功能(Core functionality)
+### 核心功能 (Core functionality)
 
-#### 外部依赖(external)
+#### 外部依赖 (external)
 类型: `(string | RegExp)[] | RegExp | string | (id: string, parentId: string, isResolved: boolean) => boolean`<br>
 命令参数: `-e`/`--external <external-id,another-external-id,...>`
 
@@ -85,13 +85,14 @@ console.log(x);
 如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 入口文件或所有入口文件的公共目录。
 The conversion back to a relative import is done as if `output.file` or `output.dir` were in the same location as the entry point or the common base directory of all entry points if there is more than one.
 
-#### 入口(input)
+#### 入口 (input)
 类型: `string | string [] | { [entryName: string]: string }`<br>
 命令行参数: `-i`/`--input <filename>`
 
-入口（input）是指打包的入口文件，比如 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用入口数组或者入口对象映射，它们将被打包到单独的输出区块（chunks）。
+input 是指打包的入口文件，比如 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用数组或者对象作为 input，那么它们将被打包到单独的输出区块（chunks）。除非使用 [`output.file`](guide/en/#outputfile) 选项，否则生成的区块名称会根据 [`output.entryFileNames`](guide/en/#outputentryfilenames) 选项来确定。使用对象形式时，文件名中的 `[name]` 将作为对象属性的一部分，而对于数组形式，它将作为入口的文件名。
 The bundle's entry point(s) (e.g. your `main.js` or `app.js` or `index.js`). If you provide an array of entry points or an object mapping names to entry points, they will be bundled to separate output chunks. Unless the [`output.file`](guide/en/#outputfile) option is used, generated chunk names will follow the [`output.entryFileNames`](guide/en/#outputentryfilenames) option. When using the object form, the `[name]` portion of the file name will be the name of the object property while for the array form, it will be the file name of the entry point.
 
+请注意，使用对象形式时，只要在入口名称中添加 '/'，就可以将入口打包到不同的子文件夹中。下面是个例子，根据 `entry-a.js` 和 `entry-b/index.js`，至少产生两个入口区块（chunks），其中 `index.js` 将输出在 `entry-b` 文件夹中：
 Note that it is possible when using the object form to put entry points into different sub-folders by adding a `/` to the name. The following will generate at least two entry chunks with the names `entry-a.js` and `entry-b/index.js`, i.e. the file `index.js` is placed in the folder `entry-b`:
 
 ```js
@@ -109,61 +110,76 @@ export default {
 };
 ```
 
+在使用命令行操作时，多个入口只需要提供多个选项即可。当作为第一个选项提供时，等同于不给它们加上 `--input` 选项：
 When using the command line interface, multiple inputs can be provided by using the option multiple times. When provided as the first options, it is equivalent to not prefix them with `--input`:
 
 ```sh
 rollup --format es --input src/entry1.js --input src/entry2.js
+# 等同于
 # is equivalent to
 rollup src/entry1.js src/entry2.js --format es
 ```
 
+可以通过 `=` 为入口命名：
 Chunks can be named by adding an `=` to the provided value:
 
 ```sh
 rollup main=src/entry1.js other=src/entry2.js --format es
 ```
 
+可以使用引号指定包含空格的文件名：
 File names containing spaces can be specified by using quotes:
 
 ```sh
 rollup "main entry"="src/entry 1.js" "src/other entry.js" --format es
 ```
 
-#### output.dir
-Type: `string`<br>
-CLI: `-d`/`--dir <dirname>`
+#### 输出目录 (output.dir)
+类型: `string`<br>
+命令行参数: `-d`/`--dir <dirname>`
 
+指定所有生产文件所在的目录。如果生成多个 chunk，则此选项是必须的。否则，可以使用 `file` 选项代替。
 The directory in which all generated chunks are placed. This option is required if more than one chunk is generated. Otherwise, the `file` option can be used instead.
 
-#### output.file
-Type: `string`<br>
-CLI: `-o`/`--file <filename>`
+#### 输出文件 (output.file)
+类型: `string`<br>
+命令行参数: `-o`/`--file <filename>`
 
+指定要写入的文件名。如果该选项生效时，那么同时也会产生 sourcemaps 。只有当生成的 chunk 不超过一个时，该选项才会生效。
 The file to write to. Will also be used to generate sourcemaps, if applicable. Can only be used if not more than one chunk is generated.
 
-#### output.format
-Type: `string`<br>
-CLI: `-f`/`--format <formatspecifier>`
+#### 输出格式 (output.format)
+类型: `string`<br>
+命令行参数: `-f`/`--format <formatspecifier>`
 
+指定产生 bundle 的格式。以下之一：
 Specifies the format of the generated bundle. One of the following:
 
+* `amd` - 异步模块定义，适用于 RequireJS 等
 * `amd` – Asynchronous Module Definition, used with module loaders like RequireJS
+* `cjs` - CommonJS，适用于 Node 以及其他打包器（别名：`commonjs`）
 * `cjs` – CommonJS, suitable for Node and other bundlers (alias: `commonjs`)
+* `es` - 将 bundle 保留为 ES 模块文件，适用于其他打包器以及支持 `<script type=module>` 标签的浏览器（别名: `esm`，`module`）
 * `es` – Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a `<script type=module>` tag in modern browsers (alias: `esm`, `module`)
+* `iife` - 自执行函数，适用于 `<script>` 标签。（如果你要为你的应用创建 bundle，那么你很可能用它。）
 * `iife` – A self-executing function, suitable for inclusion as a `<script>` tag. (If you want to create a bundle for your application, you probably want to use this.)
+* `umd` - 通用模块定义，生成支持 `amd`、`cjs` 和 `iife` 三种格式
 * `umd` – Universal Module Definition, works as `amd`, `cjs` and `iife` all in one
+* `system` - SystemJS 加载器的格式（别名: `systemjs`）
 * `system` – Native format of the SystemJS loader (alias: `systemjs`)
 
-#### output.globals
-Type: `{ [id: string]: string } | ((id: string) => string)`<br>
-CLI: `-g`/`--globals <external-id:variableName,another-external-id:anotherVariableName,...>`
+#### 输出全局变量 (output.globals)
+类型: `{ [id: string]: string } | ((id: string) => string)`<br>
+命令行参数: `-g`/`--globals <external-id:variableName,another-external-id:anotherVariableName,...>`
 
+在使用 `umd` 或 `iife` 时，使用 `id: variableName` 键值对指定外部依赖。下面就是一个外部依赖的例子：
 Specifies `id: variableName` pairs necessary for external imports in `umd`/`iife` bundles. For example, in a case like this…
 
 ```js
 import $ from 'jquery';
 ```
 
+在这个例子中，我们想要告诉 Rollup，`jquery`是外部依赖，并且 `jquery` 模块的全局 ID 为 `$`：
 …we want to tell Rollup that `jquery` is external and the `jquery` module ID equates to the global `$` variable:
 
 ```js
@@ -187,14 +203,17 @@ var MyBundle = (function ($) {
 */
 ```
 
+或者，我们也可以使用将外部依赖映射为全局变量的函数作为 `output.globals` 的值。
 Alternatively, supply a function that will turn an external module ID into a global variable name.
 
+在作为命令行参数时，它应该是以逗号分隔的 `id:variableName` 键值对：
 When given as a command line argument, it should be a comma-separated list of `id:variableName` pairs:
 
 ```
 rollup -i src/main.js ... -g jquery:$,underscore:_
 ```
 
+要告诉 Rollup 用全局变量替换本地文件，请使用绝对 ID：
 To tell Rollup that a local file should be replaced by a global variable, use an absolute id:
 
 ```js
@@ -215,10 +234,11 @@ export default {
 };
 ```
 
-#### output.name
-Type: `string`<br>
-CLI: `-n`/`--name <variableName>`
+#### 输出命名 (output.name)
+类型: `string`<br>
+命令行: `-n`/`--name <variableName>`
 
+在想要使用全局变量来表示你的 bundle 时，输出格式必须指定为 `iife` 或 `umd`。同一个页面上的其他脚本可以通过这个全局便来来访问你的 bundle 导出。
 Necessary for `iife`/`umd` bundles that exports values in which case it is the global variable name  representing your bundle. Other scripts on the same page can use this variable name to access the exports of your bundle.
 
 ```js
@@ -235,6 +255,7 @@ export default {
 // var MyBundle = (function () {...
 ```
 
+输出命名也支持命名空间，可以通过 `.` 访问。bundle 将根据设置生成对应的命名空间。
 Namespaces are supported i.e. your name can contain dots. The resulting bundle will contain the setup necessary for the namespacing.
 
 ```
@@ -247,13 +268,16 @@ this.a.b.c = ...
 */
 ```
 
-#### output.plugins
-Type: `OutputPlugin | (OutputPlugin | void)[]`
+#### 输出插件 (output.plugins)
+类型: `OutputPlugin | (OutputPlugin | void)[]`
 
+指定输出插件，这是唯一设置的地方。你查看 [Using output plugins](guide/en/#using-output-plugins) 了解更多关于如何设置指定输出插件的信息，[Plugins](guide/en/#plugin-development) 会告诉你如何写一个你自己的插件。对于从包中导入的插件，请记住调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。如果函数的值返回为 Falsy，那么该插件将会被忽略，这样可以灵活启用和禁用插件。
 Adds a plugin just to this output. See [Using output plugins](guide/en/#using-output-plugins) for more information on how to use output-specific plugins and [Plugins](guide/en/#plugin-development) on how to write your own. For plugins imported from packages, remember to call the imported plugin function (i.e. `commonjs()`, not just `commonjs`). Falsy plugins will be ignored, which can be used to easily activate or deactivate plugins.
 
+注意，并不是所有的插件都可以通过该选项使用。只有在 Rollup 主分析阶段完成以后，调用在 `bundle.generate()` 或者 `bundle.write()` 阶段的 hooks 的插件才可以使用该选项。如果你是一个插件的作者，你可以查看 [output generation hooks](guide/en/#output-generation-hooks) 了解更多关于 hooks 的使用方法。
 Not every plugin can be used here. `output.plugins` is limited to plugins that only use hooks that run during `bundle.generate()` or `bundle.write()`, i.e. after Rollup's main analysis is complete. If you are a plugin author, see [output generation hooks](guide/en/#output-generation-hooks) to find out which hooks can be used.
 
+以下是一个使用压缩插件的例子：
 The following will add minification to one of the outputs:
 
 ```js
@@ -276,9 +300,10 @@ export default {
 };
 ```
 
-#### plugins
-Type: `Plugin | (Plugin | void)[]`
+#### 插件 (plugins)
+类型: `Plugin | (Plugin | void)[]`
 
+查看 [Using plugins](guide/en/#using-plugins) 了解更多关于如何使用插件的信息，其中根据 [Plugins](guide/en/#plugin-development)，你可以写一个自定义插件（动手试试看，写一个插件并不困难，你可以通过 Rollup 插件做很多拓展）。对于从包中导入的插件，请记住调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。如果插件函数的值返回为 Falsy，那么该插件将会被忽略，这样可以灵活启用和禁用插件。
 See [Using plugins](guide/en/#using-plugins) for more information on how to use plugins and [Plugins](guide/en/#plugin-development) on how to write your own (try it out, it's not as difficult as it may sound and very much extends what you can do with Rollup). For plugins imported from packages, remember to call the imported plugin function (i.e. `commonjs()`, not just `commonjs`). Falsy plugins will be ignored, which can be used to easily activate or deactivate plugins.
 
 ```js
@@ -302,13 +327,15 @@ export default (async () => ({
 }))();
 ```
 
+（上述例子还演示了如何使用异步 IIFE 和动态导入来避免导入会使 Rollup 打包变慢的不必要的模块。）
 (This example also demonstrates how to use an async IIFE and dynamic imports to avoid unnecessary module loading, which can be surprisingly slow.)
 
-### 进阶功能(Advanced functionality)
+### 进阶功能（Advanced functionality）
 
-#### cache
-Type: `RollupCache | false`
+#### 缓存（cache）
+类型: `RollupCache | false`
 
+指定之前的 bundle 的缓存。用于加速观察模式（watch mode）下的后续构建 - 这样 Rollup 只会对改变的部分重新分析。将此选项显式设置为 `false` 将会阻止 bundle 产生缓存，还会使插件的缓存失效。
 The `cache` property of a previous bundle. Use it to speed up subsequent builds in watch mode — Rollup will only reanalyse the modules that have changed. Setting this option explicitly to `false` will prevent generating the `cache` property on the bundle and also deactivate caching for plugins.
 
 ```js
@@ -317,10 +344,10 @@ let cache;
 
 async function buildWithCache() {
   const bundle = await rollup.rollup({
-    cache, // is ignored if falsy
-    // ... other input options
+    cache, // is ignored if falsy 如果 cache 值为 falsy，那么该选项会被忽略
+    // ... other input options 其他输入选项
   });
-  cache = bundle.cache; // store the cache object of the previous build
+  cache = bundle.cache; // store the cache object of the previous build 保存之前构建的数据缓存
   return bundle;
 }
 
@@ -328,17 +355,19 @@ buildWithCache()
   .then(bundle => {
     // ... do something with the bundle
   })
-  .then(() => buildWithCache()) // will use the cache of the previous build
+  .then(() => buildWithCache()) // will use the cache of the previous build 将会使用之前构建的缓存
   .then(bundle => {
     // ... do something with the bundle
   })
 ```
 
-#### onwarn
-Type: `(warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void;`
+#### 警告（onwarn）
+类型: `(warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void;`
 
+拦截警告消息的功能。如果未提供，那么警告将会去重并打印在控制台（console）。当命令行参数中使用 [`--silent`](guide/en/#--silent)，该函数是唯一能够获取警告通知的方法。
 A function that will intercept warning messages. If not supplied, warnings will be deduplicated and printed to the console. When using the [`--silent`](guide/en/#--silent) CLI option, this handler is the only way to get notified about warnings.
 
+该函数接受两个参数：警告对象（warning object）和默认处理函数（default handler）。警告对象至少包含 `code` 和 `message` 两个属性，使你可以控制如何处理不同类型的警告。另外，根据不同的警告类型，警告对象上会有其他的属性。
 The function receives two arguments: the warning object and the default handler. Warnings objects have, at a minimum, a `code` and a `message` property, allowing you to control how different kinds of warnings are handled. Other properties are added depending on the type of warning.
 
 ```js
@@ -346,18 +375,22 @@ The function receives two arguments: the warning object and the default handler.
 export default {
   ...,
   onwarn (warning, warn) {
+    // 忽略指定类型的警告
     // skip certain warnings
     if (warning.code === 'UNUSED_EXTERNAL_IMPORT') return;
 
+    // 抛出其他类型错误
     // throw on others
     if (warning.code === 'NON_EXISTENT_EXPORT') throw new Error(warning.message);
 
+    // 使用默认处理函数兜底
     // Use default for everything else
     warn(warning);
   }
 };
 ```
 
+许多警告还具有 `loc` 和 `frame` 属性，它们可以用来定位警告来源。
 Many warnings also have a `loc` property and a `frame` allowing you to locate the source of the warning:
 
 ```js
@@ -376,23 +409,30 @@ export default {
 ```
 
 
-#### output.assetFileNames
-Type: `string`<br>
-CLI: `--assetFileNames <pattern>`<br>
-Default: `"assets/[name]-[hash][extname]"`
+#### 静态文件名（output.assetFileNames）
+类型: `string`<br>
+命令行参数: `--assetFileNames <pattern>`<br>
+默认值: `"assets/[name]-[hash][extname]"`
 
+用于自定义构建结果中的静态文件名称。它支持以下占位符：
 The pattern to use for naming custom emitted assets to include in the build output. Pattern supports the following placeholders:
- * `[extname]`: The file extension of the asset including a leading dot, e.g. `.css`.
+ * `[extname]`: 包含点的静态文件扩展名，例如：`.css`。
+ * `[extname]`：The file extension of the asset including a leading dot, e.g. `.css`.
+ * `[ext]`：不包含点的文件扩展名，例如：`css`。
  * `[ext]`: The file extension without a leading dot, e.g. `css`.
+ * `[hash]`：基于静态文件的名称和内容的哈希。
  * `[hash]`: A hash based on the name and content of the asset.
+ * `[name]`: 静态文件的名称，不包含扩展名。
  * `[name]`: The file name of the asset excluding any extension.
 
+正斜杆 `/` 可以用来划分文件到子目录。又见[`output.chunkFileNames`](guide/en/#outputchunkfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames)。
 Forward slashes `/` can be used to place files in sub-directories. See also [`output.chunkFileNames`](guide/en/#outputchunkfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames).
 
 #### output.banner/output.footer
-Type: `string | (() => string | Promise<string>)`<br>
-CLI: `--banner`/`--footer <text>`
+类型: `string | (() => string | Promise<string>)`<br>
+命令行参数: `--banner`/`--footer <text>`
 
+用于在构建结构前或后加一个字符串。当然，它也支持返回一个字符串的异步函数。（注意：`banner` 和 `footer` 选项不会破坏 sourcemaps。）
 A string to prepend/append to the bundle. You can also supply a function that returns a `Promise` that resolves to a `string` to generate it asynchronously (Note: `banner` and `footer` options will not break sourcemaps).
 
 ```js
@@ -407,63 +447,82 @@ export default {
 };
 ```
 
+了解更多可以参考 [`output.intro/output.outro`](guide/en/#outputintrooutputoutro)。
 See also [`output.intro/output.outro`](guide/en/#outputintrooutputoutro).
 
 #### output.chunkFileNames
-Type: `string`<br>
-CLI: `--chunkFileNames <pattern>`<br>
-Default: `"[name]-[hash].js"`
+类型: `string`<br>
+命令行参数: `--chunkFileNames <pattern>`<br>
+默认值: `"[name]-[hash].js"`
 
+该选项用于对代码分割中产生的文件自定义命名。它支持以下形式：
 The pattern to use for naming shared chunks created when code-splitting. Pattern supports the following placeholders:
+ * `[format]`：输出（output）选项中定义的 `format` 的值，例如：`es` 或 `cjs`。
  * `[format]`: The rendering format defined in the output options, e.g. `es` or `cjs`.
+ * `[hash]`：基于 chunk 文件本身的内容，再加上所有它依赖的文件的内容，组成的哈希。
  * `[hash]`: A hash based on the content of the chunk and the content of all its dependencies.
+ * `[name]`：chunk 的名字。它可以通过 [`output.manualChunks`](guide/en/#outputmanualchunks) 显示设置，或者通过插件调用 [`this.emitFile`](guide/en/#thisemitfileemittedfile-emittedchunk--emittedasset--string) 设置。如果没有做任何设置，它将会根据 chunk 的内容来确定。
  * `[name]`: The name of the chunk. This can be explicitly set via the [`output.manualChunks`](guide/en/#outputmanualchunks) option or when the chunk is created by a plugin via [`this.emitFile`](guide/en/#thisemitfileemittedfile-emittedchunk--emittedasset--string). Otherwise it will be derived from the chunk contents.
 
+正斜杆 `/` 可以用来划分文件到子目录。又见 [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames)。
 Forward slashes `/` can be used to place files in sub-directories. See also [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames).
 
 #### output.compact
-Type: `boolean`<br>
-CLI: `--compact`/`--no-compact`<br>
-Default: `false`
+类型: `boolean`<br>
+命令行参数: `--compact`/`--no-compact`<br>
+默认值: `false`
 
+该选项用于压缩 Rollup 产生的代码。请注意，这个选项不会影响用户的代码。在构建已经压缩好的代码时，这个选择是很有用的。
 This will minify the wrapper code generated by rollup. Note that this does not affect code written by the user. This option is useful when bundling pre-minified code.
 
 #### output.entryFileNames
-Type: `string`<br>
-CLI: `--entryFileNames <pattern>`<br>
-Default: `"[name].js"`
+类型: `string`<br>
+命令行参数: `--entryFileNames <pattern>`<br>
+默认值: `"[name].js"`
 
+该选项用于指定 chunks 的入口文件名。支持以下形式：
 The pattern to use for chunks created from entry points. Pattern supports the following placeholders:
+* `[format]`：输出（output）选项中定义的 `format` 的值，例如：`es` 或 `cjs`。
 * `[format]`: The rendering format defined in the output options, e.g. `es` or `cjs`.
+* `[hash]`：基于入口文件本身的内容，再加上所有它依赖的文件的内容，组成的哈希。
 * `[hash]`: A hash based on the content of the entry point and the content of all its dependencies.
+* `[name]`：入口文件的文件名（不包含扩展名），当入口文件（entry）定义为对象时，它的值时对象的键。
 * `[name]`: The file name (without extension) of the entry point, unless the object form of input was used to define a different name.
 
+正斜杆 `/` 可以用来划分文件到子目录。又见 [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.chunkFileNames`](guide/en/#outputchunkfilenames)。
 Forward slashes `/` can be used to place files in sub-directories. See also [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.chunkFileNames`](guide/en/#outputchunkfilenames).
 
+使用 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项时，该模式也会生效。不过，以下有一组不同的占位符：
 This pattern will also be used when using the [`output.preserveModules`](guide/en/#outputpreservemodules) option. Here there is a different set of placeholders available, though:
+* `[format]`：输出（output）选项中定义的 `format` 的值。
 * `[format]`: The rendering format defined in the output options.
+* `[name]`：文件名（不包含扩展名）
 * `[name]`: The file name (without extension) of the file.
+* `[ext]`：文件扩展名。
 * `[ext]`: The extension of the file.
+* `[extname]`：文件扩展名，如果存在则以 `.` 开头。
 * `[extname]`: The extension of the file, prefixed by `.` if it is not empty.
 
 #### output.extend
-Type: `boolean`<br>
-CLI: `--extend`/`--no-extend`<br>
-Default: `false`
+类型: `boolean`<br>
+命令行参数: `--extend`/`--no-extend`<br>
+默认值: `false`
 
+用于确定是否扩展 `umd` 或 `iife` 格式中 `name` 选项定义的全局变量。当值为 `true` 时，`name`选项指定的全局变量将定义为 `(global.name = global.name || {})`。当值为 `false` 时，`name`选项指定的全局变量将被覆盖为 `(global.name = {})`。
 Whether or not to extend the global variable defined by the `name` option in `umd` or `iife` formats. When `true`, the global variable will be defined as `(global.name = global.name || {})`. When false, the global defined by `name` will be overwritten like `(global.name = {})`.
 
 #### output.hoistTransitiveImports
-Type: `boolean`<br>
-CLI: `--hoistTransitiveImports`/`--no-hoistTransitiveImports`<br>
-Default: `true`
+类型: `boolean`<br>
+命令行参数: `--hoistTransitiveImports`/`--no-hoistTransitiveImports`<br>
+默认值: `true`
 
+默认情况下，创建多个块 (chunk) 时，入口块的可传递导入 (transitive imports) 将会以空导入的形式被打包。详细信息和背景请查阅 ["为什么在拆分代码时我的输入块中会出现其他导入？"](guide/en/#why-do-additional-imports-turn-up-in-my-entry-chunks-when-code-splitting)。将值设置为 `false` 将禁用此行为。当使用 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项时，该选项会被忽略，使得永远不会取消导入。
 By default when creating multiple chunks, transitive imports of entry chunks will be added as empty imports to the entry chunks. See ["Why do additional imports turn up in my entry chunks when code-splitting?"](guide/en/#why-do-additional-imports-turn-up-in-my-entry-chunks-when-code-splitting) for details and background. Setting this option to `false` will disable this behaviour. This option is ignored when using the [`output.preserveModules`](guide/en/#outputpreservemodules) option as here, imports will never be hoisted.
 
 #### output.inlineDynamicImports
-Type: `boolean`<br>
-CLI: `--inlineDynamicImports`/`--no-inlineDynamicImports`
-Default: `false`
+类型: `boolean`<br>
+命令行参数: `--inlineDynamicImports`/`--no-inlineDynamicImports`
+默认值: `false`
 
 This will inline dynamic imports instead of creating new chunks to create a single bundle. Only possible if a single input is provided. Note that this will change the execution order: A module that is only imported dynamically will be executed immediately if the dynamic import is inlined.
 
