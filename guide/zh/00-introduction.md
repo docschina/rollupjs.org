@@ -77,6 +77,7 @@ ajax(`https://api.example.com?search=${query}`).then(handleResponse);
 
 由于只保留最精简的所需代码，通过 Rollup 生成的库和应用就可以更加轻量、快速、清晰。由于 import 和 export 语句的使用都是明确的，就决定了这一方式要比那种简单的通过代码压缩工具查找未使用变量的方案更有效。
 
+
 ### 兼容性
 
 #### 导入 CommonJS 模块
