@@ -21,7 +21,6 @@ npm install --global rollup
 > [rollup-starter-lib](https://github.com/rollup/rollup-starter-lib) 和
 [rollup-starter-app](https://github.com/rollup/rollup-starter-app) 两个项目可分别作为 Rollup 
 运用于库和应用的参考。
-运用于库和应用的参考。
 
 以下命令假设你以 `main.js` 文件作为应用的入口点，并将所有的引入编译为单文件 `bundle.js`。
 
