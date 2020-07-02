@@ -19,7 +19,8 @@ npm install --global rollup
  Rollup 可以通过两种方式使用：（1）[命令行](guide/en/#command-line-reference)方式，可以为命令行传入一个可选的配置文件；（2）[JavaScript API](guide/en/#javascript-api) 方式。运行 `rollup --help` 可以查看可用的选项和参数。
 
 > [rollup-starter-lib](https://github.com/rollup/rollup-starter-lib) 和
-[rollup-starter-app](https://github.com/rollup/rollup-starter-app) 两个项目可分别作为 Rollup
+[rollup-starter-app](https://github.com/rollup/rollup-starter-app) 两个项目可分别作为 Rollup 
+运用于库和应用的参考。
 运用于库和应用的参考。
 
 以下命令假设你以 `main.js` 文件作为应用的入口点，并将所有的引入编译为单文件 `bundle.js`。
