@@ -86,4 +86,4 @@ Rollup 可以通过[通过插件](https://github.com/rollup/plugins/tree/master/
 
 #### 发布 ES 模块
 
-为了确保你的 ES 模块能够尽快在 Node.js 和 webpack 等支持 CommonJS 格式的工具中可用，你可以使用 Rollup 将代码编译为 UMD 或 CommonJS 格式，然后在 `package.json` 文件的 `main` 属性中指向当前编译的版本。如果你的 `package.json` 文件具有 `module` 属性，像 Rollup 和 [webpack 2+](https://webpack.js.org/) 这类 ES-module-aware 的工具就可以直接[导入模块的 ES module 版本](https://github.com/rollup/rollup/wiki/pkg.module)。
+为了确保你的 ES 模块能够尽快在 Node.js 和 webpack 等支持 CommonJS 格式的工具中可用，你可以使用 Rollup 将代码编译为 UMD 或 CommonJS 格式，然后在 `package.json` 文件的 `main` 属性中指向当前编译的版本。如果你的 `package.json` 文件具有 `module` 属性，像 Rollup 和 [webpack 2+](https://webpack.js.org/) 这类 ES 模块识别工具可以直接[导入模块的 ES module 版本](https://github.com/rollup/rollup/wiki/pkg.module)。
