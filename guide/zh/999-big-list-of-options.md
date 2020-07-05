@@ -4,16 +4,16 @@ title: Big list of options
 
 ### 核心功能 (Core functionality)
 
-#### 外部依赖 (external)
+#### external
 类型: `(string | RegExp)[] | RegExp | string | (id: string, parentId: string, isResolved: boolean) => boolean`<br>
 命令参数: `-e`/`--external <external-id,another-external-id,...>`
 
-external 用于排除一些不需要打包到 bundle 中的模块，它的值可以是一个函数，这个函数接受模块 ID `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含），也可以是一个由模块ID构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外。external 还可以取值单个模块 ID 或者 单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
+该选项用于匹配需要保留在包（bubdle）外部的模块，它的值可以是一个接收模块 `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含）的函数，也可以是一个由模块 ID 构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外，它还可以是单个模块 ID 或者单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
 Either a function that takes an `id` and returns `true` (external) or `false` (not external), or an `Array` of module IDs, or regular expressions to match module IDs, that should remain external to the bundle. Can also be just a single ID or regular expression. The matched IDs should be either:
 
-1. import 语句中外部依赖的包名。比如，如果标记 `import "dependency.js"` 为外部依赖，那么模块 ID 使用 `"dependency.js"`，而如果标记 `import "dependency"` 为外部依赖，那么模块 ID 就是 `"dependency"`。
+1. import 语句中外部依赖的名称。例如，如果标记 `import "dependency.js"` 为外部依赖，那么模块 ID 为 `"dependency.js"`，而如果标记 `import "dependency"` 为外部依赖，那么模块 ID 为 `"dependency"`。
 1. the name of an external dependency, exactly the way it is written in the import statement. I.e. to mark `import "dependency.js"` as external, use `"dependency.js"` while to mark `import "dependency"` as external, use `"dependency"`.
-2. 绝对路径。（比如文件的绝对路径）
+2. 绝对路径。（例如，文件的绝对路径）
 2. a resolved ID (like an absolute path to a file).
 
 ```js
@@ -30,34 +30,33 @@ export default {
 };
 ```
 
-注意，如果你想要将 `node_modules` 中导入的包当成外部依赖处理，你须要提前导入 [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve)，这样才能将 `import {rollup} from 'rollup'` 中 通过 `/node_modules/` 正则表达式匹配到的 rollup 当成外部依赖处理。
+请注意，如果你想要通过 `/node_modules/` 正则表达式将 `node_modules` 中导入的包当成外部依赖处理，比如 `import {rollup} from 'rollup'` 中的 `rollup`，你须要先引入 [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve) 插件。
 Note that if you want to filter out package imports, e.g. `import {rollup} from 'rollup'`, via a `/node_modules/` regular expression, you need something like [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve) to resolve the imports to `node_modules` first.
 
-当用作命令行参数时，应该用逗号分隔的模块 ID 列表：
+当用作命令行参数时，该选项的值为通过逗号分隔的模块 ID 列表：
 When given as a command line argument, it should be a comma-separated list of IDs:
 
 ```bash
 rollup -i src/main.js ... -e foo,bar,baz
 ```
 
-使用函数时会提供三个参数 `(id, parent, isResolved)` ，这些参数可以为您提供更细粒度的控制：
+当该选项的值为函数时，它会提供三个参数 `(id, parent, isResolved)` ，这些参数可以为你提供更细粒度的控制：
 When providing a function, it is actually called with three parameters `(id, parent, isResolved)` that can give you more fine-grained control:
 
-* `id` 指相关模块中的 ID
+* `id` 值为相关模块的 id
 * `id` is the id of the module in question
-* `parent` 指执行导入的模块的 ID
+* `parent` 值为执行导入的模块的 id
 * `parent` is the id of the module doing the import
-* `isResolved` 指是否已经通过插件等方式解决模块依赖
+* `isResolved` 值为布尔值，指是否已经通过插件等方式解决模块依赖
 * `isResolved` signals whether the `id` has been resolved by e.g. plugins
 
-创建 iife 或 umd 包时，您需要通过 `output.globals` 选项来提供全局变量名称，以替换外部导入。
+创建 iife 或 umd 格式的包时，你需要通过 `output.globals` 选项来提供全局变量名称，以替换外部导入。
 When creating an `iife` or `umd` bundle, you will need to provide global variable names to replace your external imports via the `output.globals` option.
 
-如果是相对导入（即以 `./` 或 `../`开头）模块被标记为”外部依赖“，rollup 会把它们处理成系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，它们将会再次被转换为相对导入。举例：
+如果被标记为”外部依赖“的导入模块是相对导入（即以 `./` 或 `../`开头）模块，rollup 会把模块 id 解析为系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，这些导入模块将会再次被转换为相对导入。例如：
 If a relative import, i.e. starting with `./` or `../`, is marked as "external", rollup will internally resolve the id to an absolute file system location so that different imports of the external module can be merged. When the resulting bundle is written, the import will again be converted to a relative import. Example:
 
 ```js
-// 输入
 // input
 // src/main.js （入口文件）
 // src/main.js (entry point)
@@ -66,7 +65,7 @@ import './nested/nested.js';
 console.log(x);
 
 // src/nested/nested.js
-// 如果导入依赖已存在，它们将指向同一个文件
+// 如果导入依赖已存在，它将指向同一个文件
 // the import would point to the same file if it existed
 import x from '../../external.js';
 console.log(x);
@@ -82,14 +81,14 @@ console.log(x);
 console.log(x);
 ```
 
-如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 入口文件或所有入口文件的公共目录。
+如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 入口文件或所有入口文件的公共基础目录。
 The conversion back to a relative import is done as if `output.file` or `output.dir` were in the same location as the entry point or the common base directory of all entry points if there is more than one.
 
-#### 入口 (input)
+#### input
 类型: `string | string [] | { [entryName: string]: string }`<br>
 命令行参数: `-i`/`--input <filename>`
 
-input 是指打包的入口文件，比如 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用数组或者对象作为 input，那么它们将被打包到单独的输出区块（chunks）。除非使用 [`output.file`](guide/en/#outputfile) 选项，否则生成的区块名称会根据 [`output.entryFileNames`](guide/en/#outputentryfilenames) 选项来确定。使用对象形式时，文件名中的 `[name]` 将作为对象属性的一部分，而对于数组形式，它将作为入口的文件名。
+该选项是指打包的入口文件，比如你的 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用数组或者对象作为 input 的值，那么它们将被打包到独立的输出区块（chunks）。除非使用 [`output.file`](guide/en/#outputfile) 选项，否则生成的区块名称会根据 [`output.entryFileNames`](guide/en/#outputentryfilenames) 选项来确定。该选项值为对象形式时，对象的键将作为文件名中的 `[name]`，而对于值为数组形式，数组的值将作为入口的文件名。
 The bundle's entry point(s) (e.g. your `main.js` or `app.js` or `index.js`). If you provide an array of entry points or an object mapping names to entry points, they will be bundled to separate output chunks. Unless the [`output.file`](guide/en/#outputfile) option is used, generated chunk names will follow the [`output.entryFileNames`](guide/en/#outputentryfilenames) option. When using the object form, the `[name]` portion of the file name will be the name of the object property while for the array form, it will be the file name of the entry point.
 
 请注意，使用对象形式时，只要在入口名称中添加 '/'，就可以将入口打包到不同的子文件夹中。下面是个例子，根据 `entry-a.js` 和 `entry-b/index.js`，至少产生两个入口区块（chunks），其中 `index.js` 将输出在 `entry-b` 文件夹中：
@@ -110,7 +109,7 @@ export default {
 };
 ```
 
-在使用命令行操作时，多个入口只需要提供多个选项即可。当作为第一个选项提供时，等同于不给它们加上 `--input` 选项：
+在使用命令行时，多个入口只需要多次使用 `--input` 提供选项即可。当作为第一个选项提供时，等同于不加 `--input` 选项：
 When using the command line interface, multiple inputs can be provided by using the option multiple times. When provided as the first options, it is equivalent to not prefix them with `--input`:
 
 ```sh
@@ -120,7 +119,7 @@ rollup --format es --input src/entry1.js --input src/entry2.js
 rollup src/entry1.js src/entry2.js --format es
 ```
 
-可以通过 `=` 为入口命名：
+可以通过 `=` 为入口命名 chunk：
 Chunks can be named by adding an `=` to the provided value:
 
 ```sh
@@ -134,52 +133,52 @@ File names containing spaces can be specified by using quotes:
 rollup "main entry"="src/entry 1.js" "src/other entry.js" --format es
 ```
 
-#### 输出目录 (output.dir)
+#### output.dir
 类型: `string`<br>
 命令行参数: `-d`/`--dir <dirname>`
 
-指定所有生产文件所在的目录。如果生成多个 chunk，则此选项是必须的。否则，可以使用 `file` 选项代替。
+该选项用于指定所有生成 chunk 文件所在的目录。如果生成多个 chunk，则此选项是必须的。否则，可以使用 `file` 选项代替。
 The directory in which all generated chunks are placed. This option is required if more than one chunk is generated. Otherwise, the `file` option can be used instead.
 
-#### 输出文件 (output.file)
+#### output.file
 类型: `string`<br>
 命令行参数: `-o`/`--file <filename>`
 
-指定要写入的文件名。如果该选项生效时，那么同时也会产生 sourcemaps 。只有当生成的 chunk 不超过一个时，该选项才会生效。
+该选项用于指定要写入的文件名。如果该选项生效，那么同时也会生成源码映射（sourcemaps）文件。只有当生成的 chunk 不超过一个时，该选项才会生效。
 The file to write to. Will also be used to generate sourcemaps, if applicable. Can only be used if not more than one chunk is generated.
 
-#### 输出格式 (output.format)
+#### output.format
 类型: `string`<br>
 命令行参数: `-f`/`--format <formatspecifier>`
 
-指定产生 bundle 的格式。以下之一：
+该选项用于指定生成 bundle 的格式。可以是以下之一：
 Specifies the format of the generated bundle. One of the following:
 
-* `amd` - 异步模块定义，适用于 RequireJS 等
+* `amd` - 异步模块定义，适用于 RequireJS 等模块加载器
 * `amd` – Asynchronous Module Definition, used with module loaders like RequireJS
-* `cjs` - CommonJS，适用于 Node 以及其他打包器（别名：`commonjs`）
+* `cjs` - CommonJS，适用于 Node 环境和其他打包工具（别名：`commonjs`）
 * `cjs` – CommonJS, suitable for Node and other bundlers (alias: `commonjs`)
-* `es` - 将 bundle 保留为 ES 模块文件，适用于其他打包器以及支持 `<script type=module>` 标签的浏览器（别名: `esm`，`module`）
+* `es` - 将 bundle 保留为 ES 模块文件，适用于其他打包工具以及支持 `<script type=module>` 标签的浏览器（别名: `esm`，`module`）
 * `es` – Keep the bundle as an ES module file, suitable for other bundlers and inclusion as a `<script type=module>` tag in modern browsers (alias: `esm`, `module`)
 * `iife` - 自执行函数，适用于 `<script>` 标签。（如果你要为你的应用创建 bundle，那么你很可能用它。）
 * `iife` – A self-executing function, suitable for inclusion as a `<script>` tag. (If you want to create a bundle for your application, you probably want to use this.)
-* `umd` - 通用模块定义，生成支持 `amd`、`cjs` 和 `iife` 三种格式
+* `umd` - 通用模块定义，生成的包同时支持 `amd`、`cjs` 和 `iife` 三种格式
 * `umd` – Universal Module Definition, works as `amd`, `cjs` and `iife` all in one
-* `system` - SystemJS 加载器的格式（别名: `systemjs`）
+* `system` - SystemJS 模块加载器的原生格式（别名: `systemjs`）
 * `system` – Native format of the SystemJS loader (alias: `systemjs`)
 
-#### 输出全局变量 (output.globals)
+#### output.globals
 类型: `{ [id: string]: string } | ((id: string) => string)`<br>
 命令行参数: `-g`/`--globals <external-id:variableName,another-external-id:anotherVariableName,...>`
 
-在使用 `umd` 或 `iife` 时，使用 `id: variableName` 键值对指定外部依赖。下面就是一个外部依赖的例子：
+该选项用于使用 `id: variableName` 键值对指定的、在 `umd` 或 `iife` 格式包中的外部依赖。下面就是一个外部依赖的例子：
 Specifies `id: variableName` pairs necessary for external imports in `umd`/`iife` bundles. For example, in a case like this…
 
 ```js
 import $ from 'jquery';
 ```
 
-在这个例子中，我们想要告诉 Rollup，`jquery`是外部依赖，并且 `jquery` 模块的全局 ID 为 `$`：
+在这个例子中，我们想要告诉 Rollup `jquery` 是外部依赖，并且 `jquery` 模块的 ID 为全局变量 `$`：
 …we want to tell Rollup that `jquery` is external and the `jquery` module ID equates to the global `$` variable:
 
 ```js
@@ -206,14 +205,14 @@ var MyBundle = (function ($) {
 或者，我们也可以使用将外部依赖映射为全局变量的函数作为 `output.globals` 的值。
 Alternatively, supply a function that will turn an external module ID into a global variable name.
 
-在作为命令行参数时，它应该是以逗号分隔的 `id:variableName` 键值对：
+在作为命令行参数时，该选项的值应该是以逗号分隔的 `id:variableName` 键值对：
 When given as a command line argument, it should be a comma-separated list of `id:variableName` pairs:
 
 ```
 rollup -i src/main.js ... -g jquery:$,underscore:_
 ```
 
-要告诉 Rollup 用全局变量替换本地文件，请使用绝对 ID：
+要告诉 Rollup 用全局变量替换本地文件，请使用系统绝对文件路径：
 To tell Rollup that a local file should be replaced by a global variable, use an absolute id:
 
 ```js
@@ -234,11 +233,11 @@ export default {
 };
 ```
 
-#### 输出命名 (output.name)
+#### output.name
 类型: `string`<br>
 命令行: `-n`/`--name <variableName>`
 
-在想要使用全局变量来表示你的 bundle 时，输出格式必须指定为 `iife` 或 `umd`。同一个页面上的其他脚本可以通过这个全局便来来访问你的 bundle 导出。
+该选项用于，在想要使用全局变量名来表示你的 bundle 时，输出格式必须指定为 `iife` 或 `umd`。同一个页面上的其他脚本可以通过这个变量名来访问你的 bundle 导出。
 Necessary for `iife`/`umd` bundles that exports values in which case it is the global variable name  representing your bundle. Other scripts on the same page can use this variable name to access the exports of your bundle.
 
 ```js
@@ -255,7 +254,7 @@ export default {
 // var MyBundle = (function () {...
 ```
 
-输出命名也支持命名空间，可以通过 `.` 访问。bundle 将根据设置生成对应的命名空间。
+该选项也支持命名空间，即包含 `.` 的名字。最终生成 bundle 将包含命名空间所需要的设置。
 Namespaces are supported i.e. your name can contain dots. The resulting bundle will contain the setup necessary for the namespacing.
 
 ```
@@ -268,13 +267,13 @@ this.a.b.c = ...
 */
 ```
 
-#### 输出插件 (output.plugins)
+#### output.plugins
 类型: `OutputPlugin | (OutputPlugin | void)[]`
 
-指定输出插件，这是唯一设置的地方。你查看 [Using output plugins](guide/en/#using-output-plugins) 了解更多关于如何设置指定输出插件的信息，[Plugins](guide/en/#plugin-development) 会告诉你如何写一个你自己的插件。对于从包中导入的插件，请记住调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。如果函数的值返回为 Falsy，那么该插件将会被忽略，这样可以灵活启用和禁用插件。
+该选项用于指定输出插件，这是设置插件的唯一入口。你查看 [Using output plugins](guide/en/#using-output-plugins) 了解更多关于如何设置指定输出插件的信息，另外，[Plugins](guide/en/#plugin-development) 会告诉你如何写一个你自己的插件。对于从包中导入的插件，请记住要调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。返回值为 Falsy 的插件将会被忽略，这样可以用于灵活启用和禁用插件。
 Adds a plugin just to this output. See [Using output plugins](guide/en/#using-output-plugins) for more information on how to use output-specific plugins and [Plugins](guide/en/#plugin-development) on how to write your own. For plugins imported from packages, remember to call the imported plugin function (i.e. `commonjs()`, not just `commonjs`). Falsy plugins will be ignored, which can be used to easily activate or deactivate plugins.
 
-注意，并不是所有的插件都可以通过该选项使用。只有在 Rollup 主分析阶段完成以后，调用在 `bundle.generate()` 或者 `bundle.write()` 阶段的 hooks 的插件才可以使用该选项。如果你是一个插件的作者，你可以查看 [output generation hooks](guide/en/#output-generation-hooks) 了解更多关于 hooks 的使用方法。
+请注意，并不是所有的插件都可以通过该选项使用。`output.plugins` 选项是受限的，例如，只有在 Rollup 的主分析阶段完成以后，在 `bundle.generate()` 或者 `bundle.write()` 阶段执行的 hooks 的插件才可以使用该选项。如果你是一个插件的作者，你可以查看 [output generation hooks](guide/en/#output-generation-hooks) 了解更多关于 hooks 的使用方法。
 Not every plugin can be used here. `output.plugins` is limited to plugins that only use hooks that run during `bundle.generate()` or `bundle.write()`, i.e. after Rollup's main analysis is complete. If you are a plugin author, see [output generation hooks](guide/en/#output-generation-hooks) to find out which hooks can be used.
 
 以下是一个使用压缩插件的例子：
@@ -300,10 +299,10 @@ export default {
 };
 ```
 
-#### 插件 (plugins)
+#### plugins
 类型: `Plugin | (Plugin | void)[]`
 
-查看 [Using plugins](guide/en/#using-plugins) 了解更多关于如何使用插件的信息，其中根据 [Plugins](guide/en/#plugin-development)，你可以写一个自定义插件（动手试试看，写一个插件并不困难，你可以通过 Rollup 插件做很多拓展）。对于从包中导入的插件，请记住调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。如果插件函数的值返回为 Falsy，那么该插件将会被忽略，这样可以灵活启用和禁用插件。
+查看 [Using plugins](guide/en/#using-plugins) 文档，了解更多关于如何使用插件的信息，另外，根据 [Plugins](guide/en/#plugin-development)，你可以写一个自定义插件（动手试试看，写一个插件并不困难，你可以通过 Rollup 插件做很多拓展）。对于从包中导入的插件，请记住调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。返回值为 Falsy 的插件将会被忽略，这样可以用于灵活启用和禁用插件。
 See [Using plugins](guide/en/#using-plugins) for more information on how to use plugins and [Plugins](guide/en/#plugin-development) on how to write your own (try it out, it's not as difficult as it may sound and very much extends what you can do with Rollup). For plugins imported from packages, remember to call the imported plugin function (i.e. `commonjs()`, not just `commonjs`). Falsy plugins will be ignored, which can be used to easily activate or deactivate plugins.
 
 ```js
@@ -332,10 +331,10 @@ export default (async () => ({
 
 ### 进阶功能（Advanced functionality）
 
-#### 缓存（cache）
+#### cache
 类型: `RollupCache | false`
 
-指定之前的 bundle 的缓存。用于加速观察模式（watch mode）下的后续构建 - 这样 Rollup 只会对改变的部分重新分析。将此选项显式设置为 `false` 将会阻止 bundle 产生缓存，还会使插件的缓存失效。
+该选项用于指定先前的 bundle 的缓存。用于加速观察模式（watch mode）中的后续构建 - 这样 Rollup 只会对改变的部分进行重新分析。将此选项显式设置为 `false` 会阻止 bundle 生成缓存，还会使插件的缓存失效。
 The `cache` property of a previous bundle. Use it to speed up subsequent builds in watch mode — Rollup will only reanalyse the modules that have changed. Setting this option explicitly to `false` will prevent generating the `cache` property on the bundle and also deactivate caching for plugins.
 
 ```js
@@ -361,10 +360,10 @@ buildWithCache()
   })
 ```
 
-#### 警告（onwarn）
+#### onwarn
 类型: `(warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void;`
 
-拦截警告消息的功能。如果未提供，那么警告将会去重并打印在控制台（console）。当命令行参数中使用 [`--silent`](guide/en/#--silent)，该函数是唯一能够获取警告通知的方法。
+该选项用于拦截警告消息。如果未提供，那么警告将会去重并打印在控制台（console）。当命令行参数中使用 [`--silent`](guide/en/#--silent)，该函数是唯一能够获取警告通知的方法。
 A function that will intercept warning messages. If not supplied, warnings will be deduplicated and printed to the console. When using the [`--silent`](guide/en/#--silent) CLI option, this handler is the only way to get notified about warnings.
 
 该函数接受两个参数：警告对象（warning object）和默认处理函数（default handler）。警告对象至少包含 `code` 和 `message` 两个属性，使你可以控制如何处理不同类型的警告。另外，根据不同的警告类型，警告对象上会有其他的属性。
