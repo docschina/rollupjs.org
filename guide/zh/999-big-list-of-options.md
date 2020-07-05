@@ -1440,6 +1440,7 @@ For each key, the first number represents the elapsed time while the second repr
 类型: `{ buildDelay?: number, chokidar?: ChokidarOptions, clearScreen?: boolean, exclude?: string, include?: string, skipWrite?: boolean } | false`<br>
 默认值: `{}`<br>
 
+指定观察模式的选项，或防止 Rollup 配置被观察。当使用配置数组时，指定为 `false` 是非常有用的。在这种情况下，将不会根据观察模式中的变更构建或重建 Rollup 配置，但是当定期运行 Rollup 时，它会被构建。
 Specify options for watch mode or prevent this configuration from being watched. Specifying `false` is only really useful when an array of configurations is used. In that case, this configuration will not be built or rebuilt on change in watch mode, but it will be built when running Rollup regularly:
 
 ```js
@@ -1457,31 +1458,36 @@ export default [
 ]
 ```
 
+这些选项仅在使用 `--watch` 标志或使用 `rollup.watch` 运行 Rollup 时生效。
 These options only take effect when running Rollup with the `--watch` flag, or using `rollup.watch`.
 
 #### watch.buildDelay
-Type: `number`<br>
-CLI: `--watch.buildDelay <number>`<br>
-Default: `0`
+类型: `number`<br>
+命令行参数: `--watch.buildDelay <number>`<br>
+默认值: `0`
 
+配置 Rollup 将等待进一步构建直到触发重建的时间（以毫秒为单位）。默认情况下，Rollup 不会等待，但是在 chokidar 实例中配置了一个小的抖动时间（debounce timeout）。此值大于 `0` 将意味着 如果配置的毫秒数没有发生变化，Rollup 只会触发一次重建。如果观察到多个配置变化，Rollup 将使用配置的最大构建延迟。
 Configures how long Rollup will wait for further changes until it triggers a rebuild in milliseconds. By default, Rollup does not wait but there is a small debounce timeout configured in the chokidar instance. Setting this to a value greater than `0` will mean that Rollup will only triger a rebuild if there was no change for the configured number of milliseconds. If several configurations are watched, Rollup will use the largest configured build delay.
 
 #### watch.chokidar
-Type: `ChokidarOptions`<br>
+类型: `ChokidarOptions`<br>
 
+在观察选项中，该选项是可选对象，将传递给 [chokidar](https://github.com/paulmillr/chokidar) 实例。查阅 [chokidar documentation](https://github.com/paulmillr/chokidar#api) 文档以了解可用的选项。
 An optional object of watch options that will be passed to the bundled [chokidar](https://github.com/paulmillr/chokidar) instance. See the [chokidar documentation](https://github.com/paulmillr/chokidar#api) to find out what options are available.
 
 #### watch.clearScreen
-Type: `boolean`<br>
-CLI: `--watch.clearScreen`/`--no-watch.clearScreen`<br>
-Default: `true`
+类型: `boolean`<br>
+命令行参数: `--watch.clearScreen`/`--no-watch.clearScreen`<br>
+默认值: `true`
 
+在触发重建是是否清除屏幕。
 Whether to clear the screen when a rebuild is triggered.
 
 #### watch.exclude
-Type: `string`<br>
-CLI: `--watch.exclude <files>`
+类型: `string`<br>
+命令行参数: `--watch.exclude <files>`
 
+防止文件被观察：
 Prevent files from being watched:
 
 ```js
@@ -1495,9 +1501,10 @@ export default {
 ```
 
 #### watch.include
-Type: `string`<br>
-CLI: `--watch.include <files>`
+类型: `string`<br>
+命令行参数: `--watch.include <files>`
 
+限制只能对指定文件进行观察。请注意，该选项只过滤模块图（module graph），但不允许添加其他观察文件：
 Limit the file-watching to certain files. Note that this only filters the module graph but does not allow to add additional watch files:
 
 ```js
@@ -1511,10 +1518,11 @@ export default {
 ```
 
 #### watch.skipWrite
-Type: `boolean`<br>
-CLI: `--watch.skipWrite`/`--no-watch.skipWrite`<br>
-Default: `false`
+类型: `boolean`<br>
+命令行参数: `--watch.skipWrite`/`--no-watch.skipWrite`<br>
+默认值: `false`
 
+是否在触发重新构建时忽略 `bundle.write()` 步骤。
 Whether to skip the `bundle.write()` step when a rebuild is triggered.
 
 ### 废弃选项(Deprecated options)
