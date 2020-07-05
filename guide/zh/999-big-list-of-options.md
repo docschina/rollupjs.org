@@ -1527,31 +1527,39 @@ Whether to skip the `bundle.write()` step when a rebuild is triggered.
 
 ### 废弃选项(Deprecated options)
 
+☢️ 这些选项已经废弃，可能从未来的 Rollup 版本中删除。
 ☢️ These options have been deprecated and may be removed in a future Rollup version.
 
 #### inlineDynamicImports
+请使用具有相同签名的 [`output.inlineDynamicImports`](guide/en/#outputinlinedynamicimports) 选项代替。
 _Use the [`output.inlineDynamicImports`](guide/en/#outputinlinedynamicimports) output option instead, which has the same signature._
 
 #### manualChunks
+请使用具有相同签名的 [`output.manualChunks`](guide/en/#outputmanualchunks) 选项代替。
 _Use the [`output.manualChunks`](guide/en/#outputmanualchunks) output option instead, which has the same signature._
 
 #### preserveModules
+请使用具有相同签名的 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项代替。
 _Use the [`output.preserveModules`](guide/en/#outputpreservemodules) output option instead, which has the same signature._
 
 #### output.dynamicImportFunction
+请使用 [`renderDynamicImport`](guide/en/#renderdynamicimport) 插件 hook 代替。
 _Use the [`renderDynamicImport`](guide/en/#renderdynamicimport) plugin hook instead._<br>
-Type: `string`<br>
-CLI: `--dynamicImportFunction <name>`<br>
-Default: `import`
+类型: `string`<br>
+命令行参数: `--dynamicImportFunction <name>`<br>
+默认值: `import`
 
+当输出为 ES 模块时，该选项将会把动态导入函数重命名为所选名称。这对于生成使用 [this one](https://github.com/uupaa/dynamic-import-polyfill) 这样的动态导入 polyfill 的代码非常有用。
 This will rename the dynamic import function to the chosen name when outputting ES bundles. This is useful for generating code that uses a dynamic import polyfill such as [this one](https://github.com/uupaa/dynamic-import-polyfill).
 
 #### treeshake.pureExternalModules
+请使用 [`treeshake.moduleSideEffects: 'no-external'`](guide/en/#treeshake) 选项代替。
 _Use [`treeshake.moduleSideEffects: 'no-external'`](guide/en/#treeshake) instead._<br>
-Type: `boolean | string[] | (id: string) => boolean | null`<br>
-CLI: `--treeshake.pureExternalModules`/`--no-treeshake.pureExternalModules`<br>
-Default: `false`
+类型: `boolean | string[] | (id: string) => boolean | null`<br>
+命令行参数: `--treeshake.pureExternalModules`/`--no-treeshake.pureExternalModules`<br>
+默认值: `false`
 
+如果值为 `true`, Rollup 会假设从没有任何导入文件的外部依赖没有其他副作用。
 If `true`, assume external dependencies from which nothing is imported do not have other side-effects like mutating global variables or logging.
 
 ```javascript
@@ -1573,4 +1581,5 @@ console.log(42);
 console.log(42);
 ```
 
+你也可以提供一个被视为纯净的外部依赖 id 的列表，或者是一个可以在移除外部导入时调用的函数。
 You can also supply a list of external ids to be considered pure or a function that is called whenever an external import could be removed.
