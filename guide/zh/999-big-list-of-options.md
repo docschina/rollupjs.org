@@ -1401,22 +1401,26 @@ In the example, the last line is always retained as accessing the `element` prop
 
 ### 实验选项(Experimental options)
 
+这些选项反应了尚未完全确定的新功能。因此，可行性，行为和用法在次要版本中可能发生变化。
 These options reflect new features that have not yet been fully finalized. Availability, behaviour and usage may therefore be subject to change between minor versions.
 
 #### experimentalCacheExpiry
-Type: `number`<br>
-CLI: `--experimentalCacheExpiry <numberOfRuns>`<br>
-Default: `10`
+类型: `number`<br>
+命令行参数: `--experimentalCacheExpiry <numberOfRuns>`<br>
+默认值: `10`
 
+用于确定在多少次执行以后，应该删除不再被插件使用的静态缓存。
 Determines after how many runs cached assets that are no longer used by plugins should be removed.
 
 #### perf
-Type: `boolean`<br>
-CLI: `--perf`/`--no-perf`<br>
-Default: `false`
+类型: `boolean`<br>
+命令行参数: `--perf`/`--no-perf`<br>
+默认值: `false`
 
+决定是否收集打包执行耗时。当使用命令行或者配置为监事，将会展示与当前构建进程有关的详细指标。当在 [JavaScript API](guide/en/#javascript-api) 中使用试试，返回的 bundle 对象将包含额外的 `getTimings()` 函数，可以随时调用该函数来查找所有累计的指标。
 Whether to collect performance timings. When used from the command line or a configuration file, detailed measurements about the current bundling process will be displayed. When used from the [JavaScript API](guide/en/#javascript-api), the returned bundle object will contain an additional `getTimings()` function that can be called at any time to retrieve all accumulated measurements.
 
+`getTimings()` 返回以下对象形式：
 `getTimings()` returns an object of the following form:
 
 ```json
@@ -1428,12 +1432,13 @@ Whether to collect performance timings. When used from the command line or a con
 }
 ```
 
+对于每个值，第一个数值表示经过的时间，第二个数值表示内存消耗的变化，第三个数值表示此步骤完成后的总内存消耗。这些步骤的顺序是使用 `Object.keys` 确定的。Top level 键以 `#` 开头，并包含嵌套步骤的耗时，例如，在上面例子值班费的 `# BUILD` 步骤耗时（698ms）包含了 `## parse modules` 步骤的耗时（539ms）。
 For each key, the first number represents the elapsed time while the second represents the change in memory consumption and the third represents the total memory consumption after this step. The order of these steps is the order used by `Object.keys`. Top level keys start with `#` and contain the timings of nested steps, i.e. in the example above, the 698ms of the `# BUILD` step include the 538ms of the `## parse modules` step.
 
-### Watch选项(Watch options)
+### 观察选项(Watch options)
 
-Type: `{ buildDelay?: number, chokidar?: ChokidarOptions, clearScreen?: boolean, exclude?: string, include?: string, skipWrite?: boolean } | false`<br>
-Default: `{}`<br>
+类型: `{ buildDelay?: number, chokidar?: ChokidarOptions, clearScreen?: boolean, exclude?: string, include?: string, skipWrite?: boolean } | false`<br>
+默认值: `{}`<br>
 
 Specify options for watch mode or prevent this configuration from being watched. Specifying `false` is only really useful when an array of configurations is used. In that case, this configuration will not be built or rebuilt on change in watch mode, but it will be built when running Rollup regularly:
 
