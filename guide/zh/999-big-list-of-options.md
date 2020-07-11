@@ -292,7 +292,7 @@ export default (async () => ({
 #### cache
 类型：`RollupCache | false`
 
-该选项用于指定先前的 bundle 的缓存。用于加速观察模式（watch mode）中的后续构建 - 这样 Rollup 只会对改变的部分进行重新分析。将此选项显式设置为 `false` 会阻止 bundle 生成缓存，还会使插件的缓存失效。
+该选项用于指定先前的 bundle 的缓存。当它设置后，Rollup 只会对改变的部分进行重新分析，从而加速观察模式（watch mode）中的后续构建。如果将它设置为 `false`，则会阻止 bundle 生成缓存，还会导致插件的缓存失效。
 
 ```js
 const rollup = require('rollup');
@@ -320,9 +320,9 @@ buildWithCache()
 #### onwarn
 类型：`(warning: RollupWarning, defaultHandler: (warning: string | RollupWarning) => void) => void;`
 
-该选项用于拦截警告消息。如果未提供，那么警告将会去重并打印在控制台（console）。当命令行参数中使用 [`--silent`](guide/en/#--silent)，该函数是唯一能够获取警告通知的方法。
+该选项用于拦截警告消息。如果未使用该选项，警告消息就会去重并打印在控制台（console）。当命令行中使用 [`--silent`](guide/en/#--silent) 参数时，该选项是唯一能够获取警告通知的方法。
 
-该函数接受两个参数：警告对象（warning object）和默认处理函数（default handler）。警告对象至少包含 `code` 和 `message` 两个属性，使你可以控制如何处理不同类型的警告。另外，根据不同的警告类型，警告对象上会有其他的属性。
+该选项是函数类型，接收两个输入参数：警告对象（warning object）和默认处理函数（default handler）。其中，警告对象至少包含 `code` 和 `message` 两个属性，用于处理不同类型的警告。另外，根据不同的警告类型，警告对象上会有其他的属性。
 
 ```js
 // rollup.config.js
@@ -341,7 +341,7 @@ export default {
 };
 ```
 
-许多警告还具有 `loc` 和 `frame` 属性，它们可以用来定位警告来源。
+很多警告还具有 `loc` 和 `frame` 属性，它们可以用来定位警告来源。
 
 ```js
 // rollup.config.js
@@ -364,19 +364,19 @@ export default {
 命令行参数：`--assetFileNames <pattern>`<br>
 默认值：`"assets/[name]-[hash][extname]"`
 
-用于自定义构建结果中的静态文件名称。它支持以下占位符：
- * `[extname]`: 包含点的静态文件扩展名，例如：`.css`。
+该选项用于自定义构建结果中的静态文件名称。它支持以下占位符：
+ * `[extname]`：包含点的静态文件扩展名，例如：`.css`。
  * `[ext]`：不包含点的文件扩展名，例如：`css`。
  * `[hash]`：基于静态文件的名称和内容的哈希。
- * `[name]`: 静态文件的名称，不包含扩展名。
+ * `[name]`：静态文件的名称，不包含扩展名。
 
-正斜杆 `/` 可以用来划分文件到子目录。又见[`output.chunkFileNames`](guide/en/#outputchunkfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames)。
+正斜杆 `/` 可以用来划分文件到子目录。又见 [`output.chunkFileNames`](guide/en/#outputchunkfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames)。
 
 #### output.banner/output.footer
 类型：`string | (() => string | Promise<string>)`<br>
 命令行参数：`--banner`/`--footer <text>`
 
-用于在构建结构前或后加一个字符串。当然，它也支持返回一个字符串的异步函数。（注意：`banner` 和 `footer` 选项不会破坏 sourcemaps。）
+该选项用于在构建结果顶部添加一个字符串，或者在构建结果末尾添加一个字符串。当然，它也支持返回一个字符串的异步函数。（注意：`banner` 和 `footer` 选项不会破坏 sourcemaps。）
 
 ```js
 // rollup.config.js
@@ -397,19 +397,19 @@ export default {
 命令行参数：`--chunkFileNames <pattern>`<br>
 默认值：`"[name]-[hash].js"`
 
-该选项用于对代码分割中产生的文件自定义命名。它支持以下形式：
+该选项用于对代码分割中产生的 chunk 文件自定义命名。它支持以下形式：
  * `[format]`：输出（output）选项中定义的 `format` 的值，例如：`es` 或 `cjs`。
- * `[hash]`：基于 chunk 文件本身的内容，再加上所有它依赖的文件的内容，组成的哈希。
+ * `[hash]`：哈希值，由 chunk 文件本身的内容和所有它依赖的文件的内容共同组成。
  * `[name]`：chunk 的名字。它可以通过 [`output.manualChunks`](guide/en/#outputmanualchunks) 显示设置，或者通过插件调用 [`this.emitFile`](guide/en/#thisemitfileemittedfile-emittedchunk--emittedasset--string) 设置。如果没有做任何设置，它将会根据 chunk 的内容来确定。
 
-正斜杆 `/` 可以用来划分文件到子目录。又见 [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames)。
+正斜杆 `/` 可以用来划分 chunk 文件到子目录。又见 [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.entryFileNames`](guide/en/#outputentryfilenames)。
 
 #### output.compact
 类型：`boolean`<br>
 命令行参数：`--compact`/`--no-compact`<br>
 默认值：`false`
 
-该选项用于压缩 Rollup 产生的代码。请注意，这个选项不会影响用户的代码。在构建已经压缩好的代码时，这个选择是很有用的。
+该选项用于压缩 Rollup 产生的额外代码。请注意，这个选项不会影响用户的代码。在构建已经压缩好的代码时，这个选择是很有用的。
 
 #### output.entryFileNames
 类型：`string`<br>
@@ -418,12 +418,12 @@ export default {
 
 该选项用于指定 chunks 的入口文件名。支持以下形式：
 * `[format]`：输出（output）选项中定义的 `format` 的值，例如：`es` 或 `cjs`。
-* `[hash]`：基于入口文件本身的内容，再加上所有它依赖的文件的内容，组成的哈希。
+* `[hash]`：哈希值，由入口文件本身的内容和所有它依赖的文件的内容共同组成。
 * `[name]`：入口文件的文件名（不包含扩展名），当入口文件（entry）定义为对象时，它的值时对象的键。
 
 正斜杆 `/` 可以用来划分文件到子目录。又见 [`output.assetFileNames`](guide/en/#outputassetfilenames), [`output.chunkFileNames`](guide/en/#outputchunkfilenames)。
 
-使用 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项时，该模式也会生效。不过，以下有一组不同的占位符：
+使用 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项时，该模式也会生效。不过，此时它有如下一组不同的占位符：
 * `[format]`：输出（output）选项中定义的 `format` 的值。
 * `[name]`：文件名（不包含扩展名）
 * `[ext]`：文件扩展名。
@@ -434,7 +434,7 @@ export default {
 命令行参数：`--extend`/`--no-extend`<br>
 默认值：`false`
 
-用于确定是否扩展 `umd` 或 `iife` 格式中 `name` 选项定义的全局变量。当值为 `true` 时，`name`选项指定的全局变量将定义为 `(global.name = global.name || {})`。当值为 `false` 时，`name`选项指定的全局变量将被覆盖为 `(global.name = {})`。
+该选项用于指定是否扩展 `umd` 或 `iife` 格式中 `name` 选项定义的全局变量。当值为 `true` 时，`name`选项指定的全局变量将定义为 `(global.name = global.name || {})`。当值为 `false` 时，`name` 选项指定的全局变量将被覆盖为 `(global.name = {})`。
 
 #### output.hoistTransitiveImports
 类型：`boolean`<br>
@@ -448,14 +448,14 @@ export default {
 命令行参数：`--inlineDynamicImports`/`--no-inlineDynamicImports`
 默认值：`false`
 
-该选项用于内联动态导入，而不是创建新的块来创建当个 bundle。并且它只在但输入源时产生作用。请注意，它会影响执行顺序：如果该模块是内联动态导入，那么它将会被立即执行。
+该选项用于内联动态导入，而不是用于创建包含新 Chunk 的独立 bundle。它只在单一输入源时产生作用。请注意，它会影响执行顺序：如果该模块是内联动态导入，那么它将会被立即执行。
 
 #### output.interop
 类型：`boolean`<br>
 命令行参数：`--interop`/`--no-interop`<br>
 默认值：`true`
 
-该选项用于决定是否去添加 "interop block"。默认情况下（`interop: true`），出于安全起见，如果要区分默认导出和命名导出，Rollup 会将所有外部依赖的默认导出（`default` exports）赋值给一个单独的变量。通常，这仅在外部依赖被转译（例如 Babel）时才适用 - 如果你不需要它，你可以将它的值置为 `interop: false`。
+该选项用于决定是否添加 "interop block"。默认情况下（`interop: true`），出于安全起见，如果要区分默认导出和命名导出，Rollup 会将所有外部依赖的默认导出（`default` exports）赋值给一个单独的变量。通常情况下，这仅在外部依赖被转译（例如 Babel）时才适用 - 如果你不需要它，你可以将它设置为 `interop: false`。
 
 #### output.intro/output.outro
 类型：`string | (() => string | Promise<string>)`<br>
@@ -476,9 +476,9 @@ export default {
 #### output.manualChunks
 类型：`{ [chunkAlias: string]: string[] } | ((id: string, {getModuleInfo, getModuleIds}) => string | void)`
 
-该选项允许你创建自定义的共享公共模块。当值为对象形式时，每个属性代表一个大块，其中包含列出的模块及其所有依赖（如果他们是模块的一部分，除非他们已经在另个手动块中）。块的名称由对象属性的键（key）决定。
+该选项允许你创建自定义的公共模块。当它的值为对象形式时，每个属性代表一个大块，其中包含列出的模块及其所有依赖（除非他们已经在其他 chunk 中，否则将会是模块图（module graph）的一部分）。chunk 的名称由对象属性的键（key）决定。
 
-请注意，列出的模块本书不必成为模块图（module graph）的一部分，这对于使用 `@rollup/plugin-node-resolve` 并从中使用深度导入（deep imports）是非常有用的。例如：
+请注意，列出的模块本身不一定是模块图（module graph）的一部分，该特性对于使用 `@rollup/plugin-node-resolve` 并从中使用深度导入（deep imports）是非常有用的。例如：
 
 ```
 manualChunks: {
@@ -486,9 +486,9 @@ manualChunks: {
 }
 ```
 
-上述例子中，即使你只是使用 `import get from 'lodash/get'` 形式，Rollup 也会将 lodash 的所有模块放到一个手动块中。
+上述例子中，即使你只是使用 `import get from 'lodash/get'` 形式，Rollup 也会将 lodash 的所有模块放到一个自定义 chunk 中。
 
-当使用函数形式时，每个被解析的模块都会传递给这个函数。如果函数返回字符串，那么该模块及其所有依赖将被添加到以返回字符串命名的手动块中。例如，以下例子会创建一个命名为 `vendor` 的块，它包含所有在 `node_modules` 中的依赖。
+当该选项值为函数形式时，每个被解析的模块都会经过该函数处理。如果函数返回字符串，那么该模块及其所有依赖将被添加到以返回字符串命名的自定义 chunk 中。例如，以下例子会创建一个命名为 `vendor` 的 chunk，它包含所有在 `node_modules` 中的依赖。
 
 ```javascript
 manualChunks(id) {
@@ -498,15 +498,14 @@ manualChunks(id) {
 }
 ```
 
-请注意，如果在实际使用相应的模块之前触发了副作用，那么手动块可以更改整个应用程序的行为。
+请注意，如果自定义 chunk 在使用相应模块之前触发了副作用，那么它可能改变整个应用程序的行为。
 
-当 `manualChunks` 使用函数形式时，它的第二个参数是 `getMouduleInfo` 函数和 `getMoudleIds` 函数，其工作方式与插件上下文中 [`this.getModuleInfo`](guide/en/#thisgetmoduleinfomoduleid-string--moduleinfo) 和 [`this.getModuleIds`](guide/en/#thisgetmoduleids--iterableiteratorstring) 相同。
+当 `manualChunks` 使用函数形式时，它的第二个参数是一个对象，包含 `getMouduleInfo` 函数和 `getMoudleIds` 函数，其工作方式与插件上下文中的 [`this.getModuleInfo`](guide/en/#thisgetmoduleinfomoduleid-string--moduleinfo) 和 [`this.getModuleIds`](guide/en/#thisgetmoduleids--iterableiteratorstring) 相同。
 
-这可以用于根据模块在模块图中的位置动态确定它应该被放在哪个手动块中。例如，考虑一个场景，其中有一组组件，每个组件动态导入一组已转译的依赖，即
+该选项可以用于根据模块在模块图中的位置动态确定它应该被放在哪个自定义 chunk 中。例如，考虑这样一个场景，有一组组件，每个组件动态导入一组已转译的依赖，即
 
 ```js
 // 在 “foo” 组件中
-// Inside the "foo" component
 
 function getTranslatedStrings(currentLanguage) {
   switch (currentLanguage) {
@@ -517,7 +516,7 @@ function getTranslatedStrings(currentLanguage) {
 }
 ```
 
-如果将许多这样的组件一起使用，则会导致生成很多很小的动态导入块：尽管我们知道由同一块导入的所有相同语言的语言文件将始终一起使用，但是 Rollup 并不知道。
+如果将很多这样的组件一起使用，则会导致生成很多很小的动态导入 chunk：尽管我们知道由同一块导入的所有相同语言的语言文件将始终一起使用，但是 Rollup 并不知道。
 
 下面代码将会合并仅由单个入口使用的相同语言的所有文件：
 
@@ -525,27 +524,26 @@ function getTranslatedStrings(currentLanguage) {
 manualChunks(id, { getModuleInfo }) {
   const match = /.*\.strings\.(\w+)\.js/.exec(id);
   if (match) {
-    const language = match[1]; // e.g. "en"
+    const language = match[1]; // 例如 "en"
     const dependentEntryPoints = [];
 
-    // we use a Set here so we handle each module at most once. This
-    // prevents infinite loops in case of circular dependencies
+    // 在这里，我们使用 Set 一次性处理每个依赖模块
+    // 它可以阻止循环依赖中的无限循环
     const idsToHandle = new Set(getModuleInfo(id).dynamicImporters);
 
     for (const moduleId of idsToHandle) {
       const { isEntry, dynamicImporters, importers } = getModuleInfo(moduleId);
       if (isEntry || dynamicImporters.length > 0) dependentEntryPoints.push(moduleId);
 
-      // The Set iterator is intelligent enough to iterate over elements that
-      // are added during iteration
+      // 使用 Set 迭代器是明智之选
       for (const importerId of importers) idsToHandle.add(importerId);
     }
 
-    // If there is a unique entry, we put it into into a chunk based on the entry name
+    // 如果仅有一个入口，那么我们会根据入口名将它放到独立的 chunk 中
     if (dependentEntryPoints.length === 1) {
       return `${dependentEntryPoints[0].split('/').slice(-1)[0].split('.')[0]}.strings.${language}`;
     }
-    // For multiple entries, we put it into a "shared" chunk
+    // 对于多个入口，我们会把它放到共享 chunk 中
     if (dependentEntryPoints.length > 1) {
       return `shared.strings.${language}`;
     }
@@ -558,7 +556,7 @@ manualChunks(id, { getModuleInfo }) {
 命令行参数：`--minifyInternalExports`/`--no-minifyInternalExports`<br>
 默认值：在 `es` 格式和 `system` 格式或者 `output.compact` 值为 `true`的情况下为 `true`，否则为 `false`
 
-默认情况下，该选项的值在 `es` 格式和 `system` 格式或者 `output.compact` 值为 `true` 时为 `true`，意味着 Rollup 会尝试把内部变量导出为单个字母的变量，以便更好地压缩代码。
+默认情况下，该选项的值在 `es` 格式、 `system` 格式或者 `output.compact` 值为 `true` 时为 `true`，意味着 Rollup 会尝试把内部变量导出为单个字母的变量，以便更好地压缩代码。
 
 **示例**<br>
 输入:
@@ -614,13 +612,12 @@ import { importantValue } from './main-5532def0.js';
 console.log(importantValue);
 ```
 
-该选项值为 `true` 时，尽管表面上会导致代码输出变大，但是实际上，如果你使用压缩工具（minifier），代码会更小。在这种情况下，`export { importantValue as i }` 能够变成 `export{a as i}`，甚至是 `export{i}`，而实际上是 `export{ a as importantValue }`，因为压缩工具通常不会改变导出签名。
-Even though it appears that setting this option to `true` makes the output larger, it actually makes it smaller if a minifier is used. In this case, `export { importantValue as i }` can become e.g. `export{a as i}` or even `export{i}`, while otherwise it would produce `export{ a as importantValue }` because a minifier usually will not change export signatures.
+该选项值为 `true` 时，尽管表面上会导致代码输出变大，但是实际上，如果你使用压缩工具（minifier），代码会更小。在这种情况下，理论上，`export { importantValue as i }` 能够会被压缩成 `export{a as i}`，甚至是 `export{i}`，但是实际上是 `export{ a as importantValue }`，因为压缩工具通常不会改变导出签名。
 
 #### output.paths
 类型：`{ [id: string]: string } | ((id: string) => string)`
 
-该选项用于将外部依赖映射为路径。其中，外部依赖是指该选项 [无法解析](guide/en/#warning-treating-module-as-external-dependency) 的模块或者通过 [`external`](guide/en/#external) 选项明确指定的模块。`output.paths` 提供的路径会被用在生成的 bundle中，而不是模块中，例如，你可以从 CDN 加载依赖：
+该选项用于将外部依赖映射为路径。其中，外部依赖是指该选项 [无法解析](guide/en/#warning-treating-module-as-external-dependency) 的模块或者通过 [`external`](guide/en/#external) 选项明确指定的模块。`output.paths` 提供的路径会取代模块 ID，在生成的 bundle 中使用，例如，你可以从 CDN 加载依赖：
 
 ```js
 // app.js
@@ -655,9 +652,9 @@ define(['https://d3js.org/d3.v4.min'], function (d3) {
 命令行参数：`--preserveModules`/`--no-preserveModules`<br>
 默认值：`false`
 
-该选项将使用原始模块名作为文件名，为所有模块创建单独的块，而不是创建尽可能少的块。它需要配合 [`output.dir`](guide/en/#outputdir) 选项使用。Tree-shaking 仍会对没有被入口点使用或者执行阶段没有副作用的文件生效。该选项可以用于将文件结构转换为其他模块格式。
+该选项将使用原始模块名作为文件名，为所有模块创建单独的 chunk，而不是创建尽可能少的 chunk。它需要配合 [`output.dir`](guide/en/#outputdir) 选项一起使用。Tree-shaking 仍会对没有被入口使用或者执行阶段没有副作用的文件生效。该选项可以用于将文件结构转换为其他模块格式。
 
-请注意，在转换为 `cjs` 或 `amd` 格式时，默认情况下，通过设置 [`output.exports`](guide/en/#outputexports) 为 `auto`，每个文件会作为入口点。这意味着，例如对于 `cjs`，只包含默认导出的文件会呈现为
+请注意，默认情况下，在转换为 `cjs` 或 `amd` 格式时，设置 [`output.exports`](guide/en/#outputexports) 的值为 `auto` 可以把每个文件会作为入口点。这意味着，例如对于 `cjs`，只包含默认导出的文件会将值直接赋值给 `module.exports`。
 
 ```js
 // input main.js
@@ -671,7 +668,7 @@ var main = 42;
 module.exports = main;
 ```
 
-将值直接赋值给 `module.exports`。如果其他模块导入此文件，它们可以通过以下方式访问默认导出
+如果其他模块导入此文件，它们可以通过以下方式访问默认导出
 
 ```js
 const main = require('./main.js');
@@ -703,27 +700,27 @@ console.log(main.default); // 42
 命令行参数：`-m`/`--sourcemap`/`--no-sourcemap`<br>
 默认值：`false`
 
-如果该选项值为 `true`，那么每个文件都将生成一个独立的源码映射（sourcemap）文件。如果值为 `“inline”`，那么源码映射会以 data URI 的形式添加到输出文件末尾。如果值为 `“hidden”`，表现和 `true` 相同，不同的是，bundle 文件中没有源码映射的注释。
+如果该选项值为 `true`，那么每个文件都将生成一个独立的 sourcemap 文件。如果值为 `“inline”`，那么 sourcemap 会以 data URI 的形式附加到输出文件末尾。如果值为 `“hidden”`，那么它的表现和 `true` 相同，不同的是，bundle 文件中没有 sourcemap 的注释。
 
 #### output.sourcemapExcludeSources
 类型：`boolean`<br>
 命令行参数：`--sourcemapExcludeSources`/`--no-sourcemapExcludeSources`<br>
 默认值：`false`
 
-如果该选项的值为 `true`，那么实际源代码将不会被添加到源码映射中，从而使其变得更小。
+如果该选项的值为 `true`，那么实际源代码将不会被添加到 sourcemap 文件中，从而使其变得更小。
 
 #### output.sourcemapFile
 类型：`string`<br>
 命令行参数：`--sourcemapFile <file-name-with-path>`
 
-该选项用于指定生成源码映射文件的位置。如果是一个绝对路径，那么源码映射文件中的所有 `源文件（sources）` 路径都相对于它。`map.file` 属性是 `sourcemapFile` 的基本名称，因为源码隐射的位置是被假定与该包相邻。
+该选项用于指定生成 sourcemap 文件的位置。如果是一个绝对路径，那么 sourcemap 文件中的所有 `源文件（sources）` 路径都相对于该路径。`map.file` 属性是 `sourcemapFile` 的基本名称，因为 sourcemap 文件一般是和其构建后的 bundle 处于同一目录。
 
-如果 `output` 设置了，那就不必设置 `sourcemapFile`，这种情况下，`sourcemapFile` 的值会通过输出文件名中添加 “.map” 推断出来。
+如果 `output` 设置了值，那么 `sourcemapFile` 不是必须的，这种情况下，`sourcemapFile` 的值会通过输出文件名中添加 “.map” 推断出来。
 
 #### output.sourcemapPathTransform
 类型：`(relativeSourcePath: string, sourcemapPath: string) => string`
 
-该选项用于源码映射中的路径转换。其中，`relativeSourcePath` 是指从生成的 `.map` 文件到相对应的源文件的相对路径，而 `sourcemapPath` 是指生成源码映射文件的绝对路径。
+该选项用于 sourcemap 的路径转换。其中，`relativeSourcePath` 是指从生成的 `.map` 文件到相对应的源文件的相对路径，而 `sourcemapPath` 是指生成源码映射文件的绝对路径。
 
 ```js
 import path from 'path';
@@ -746,11 +743,11 @@ export default ({
 命令行参数：`--preserveEntrySignatures <strict|allow-extension>`/`--no-preserveEntrySignatures`<br>
 默认值：`"strict"`
 
-控制 Rollup 是否尝试确保入口块与基础入口模块具有相同的导出。
+该选项用于控制 Rollup 尝试确保入口块与基础入口模块具有相同的导出。
 
-- 如果设置为 `"strict"`，Rollup 将在入口 chunk 中创建与相应入口模块中完全相同的导出。如果因为需要向 chunk 中添加额外的内部导出而无法这样做，那么 Rollup 将创建一个 `facade` 入口 chunk，它将仅从前其他 chunk 中导出必要的绑定，但不包含任何其他代码。对于库，推荐使用此设置。
-- `"allow-extension"` 将在入口 chunk 中创建入口模块的所有导出，但是如果有必要，还可以添加其他导出，从而避免出现 “facade” 入口 chunk。对于不需要严格签名的库，此设置很有意义。
-- `false` 不会将入口模块中的任何导出内容添加到相应的 chunk 中，甚至不包含相应的代码，除非这些导出内容在 bundle 的其他位置使用。但是，可以将内部导出添加到入口 chunks 中。对于将入口 chunks 放置在脚本标记中的 Web apps，推荐使用该设置，因为它可能同时减少 bundle 的尺寸大小 和 chunks 的数量。
+- 如果它的值设置为 `"strict"`，Rollup 将在入口 chunk 中创建与相应入口模块中完全相同的导出。如果因为需要向 chunk 中添加额外的内部导出而无法这样做，那么 Rollup 将创建一个 `facade` 入口 chunk，它将仅从前其他 chunk 中导出必要的绑定，但不包含任何其他代码。对于库，推荐使用此设置。
+- 值为 `"allow-extension"`，则 Rollup 会将在入口 chunk 中创建入口模块的所有导出，但是如果有必要，还可以添加其他导出，从而避免出现 “facade” 入口 chunk。对于不需要严格签名的库，此设置很有意义。
+- 值为 `false`，则 Rollup 不会将入口模块中的任何导出内容添加到相应的 chunk 中，甚至不包含相应的代码，除非这些导出内容在 bundle 的其他位置使用。但是，可以将内部导出添加到入口 chunks 中。对于将入口 chunks 放置在脚本标记中的 Web 应用，推荐使用该设置，因为它可能同时减少 bundle 的尺寸大小 和 chunks 的数量。
 
 **示例**<br>
 输入：
@@ -825,9 +822,9 @@ console.log(shared);
 命令行参数：`--strictDeprecations`/`--no-strictDeprecations`<br>
 默认值：`false`
 
-启用此标志后，当使用废弃的功能时，Rollup 将抛出错误而不是显示警告。此外，如果使用了在下一个主要版本（major version）被标记为废弃警告的功能时，也会抛出错误。
+启用此标志后，当使用废弃的功能时，Rollup 将抛出错误而不是警告。此外，如果使用了在下一个主要版本（major version）被标记为废弃警告的功能时，也会抛出错误。
 
-例如，插件作者打算使用此标志，以便能够尽快为即将发布的主要版本调整其插件。
+例如，该选项被用于，插件作者能尽早地为即将发布的主要版本调整其插件配置。
 
 ### 慎用选项(Danger zone)
 
