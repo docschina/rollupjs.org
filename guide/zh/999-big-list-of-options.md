@@ -1276,12 +1276,12 @@ const element = angular.element;
 
 对于每个键的值，是一个数组，其中，第一个数值表示经过的时间，第二个数值表示内存消耗的变化，第三个数值表示此步骤完成后的总内存消耗。这些步骤的顺序是通过 `Object.keys` 确定的。Top level 键以 `#` 开头，包含嵌套步骤的耗时，例如，在上面例子中的 `# BUILD` 步骤耗时（698ms）包含了 `## parse modules` 步骤的耗时（539ms）。
 
-### 观察选项(Watch options)
+### 观察选项（Watch options）
 
 类型：`{ buildDelay?: number, chokidar?: ChokidarOptions, clearScreen?: boolean, exclude?: string, include?: string, skipWrite?: boolean } | false`<br>
 默认值：`{}`<br>
 
-指定观察模式的选项，或防止 Rollup 配置被观察。当使用配置数组时，指定为 `false` 是非常有用的。在这种情况下，将不会根据观察模式中的变更构建或重建 Rollup 配置，但是当定期运行 Rollup 时，它会被构建。
+该选项用于指定 watch 模式的选项，或防止 Rollup 配置被 watch。指定该选项为 `false` ，仅对 Rollup 使用数组配置时有用。在这种情况下，Rollup 配置将不会根据观察模式中的变更构建或重新构建，而是在 Rollup 运行时定期构建。
 
 ```js
 // rollup.config.js
@@ -1305,7 +1305,7 @@ export default [
 命令行参数：`--watch.buildDelay <number>`<br>
 默认值：`0`
 
-配置 Rollup 将等待进一步构建直到触发重建的时间（以毫秒为单位）。默认情况下，Rollup 不会等待，但是在 chokidar 实例中配置了一个小的抖动时间（debounce timeout）。此值大于 `0` 将意味着 如果配置的毫秒数没有发生变化，Rollup 只会触发一次重建。如果观察到多个配置变化，Rollup 将使用配置的最大构建延迟。
+该选项用于配置 Rollup 触发重新构建（rebuild）到执行进一步构建需要等待的时间（以毫秒为单位）。默认情况下，Rollup 不会等待，但是在 chokidar 实例中配置了一个小的抖动时间（debounce timeout）。该选项的值大于 `0` 将意味着如果配置的毫秒数没有发生变化，Rollup 只会触发一次重新构建。如果观察到多个配置变化，Rollup 将使用配置的最大构建延迟。
 
 #### watch.chokidar
 类型：`ChokidarOptions`<br>
@@ -1317,13 +1317,13 @@ export default [
 命令行参数：`--watch.clearScreen`/`--no-watch.clearScreen`<br>
 默认值：`true`
 
-在触发重建是是否清除屏幕。
+该选项用于决定在触发重建是是否清除屏幕。
 
 #### watch.exclude
 类型：`string`<br>
 命令行参数：`--watch.exclude <files>`
 
-防止文件被观察：
+该选项用于指定不需要被 watch 的文件：
 
 ```js
 // rollup.config.js
@@ -1339,7 +1339,7 @@ export default {
 类型：`string`<br>
 命令行参数：`--watch.include <files>`
 
-限制只能对指定文件进行观察。请注意，该选项只过滤模块图（module graph），但不允许添加其他观察文件：
+该选项用于限制只能对指定文件进行观察。请注意，该选项只过滤 module graph 中的文件，不在其中的文件将不会被观察：
 
 ```js
 // rollup.config.js
@@ -1356,7 +1356,7 @@ export default {
 命令行参数：`--watch.skipWrite`/`--no-watch.skipWrite`<br>
 默认值：`false`
 
-是否在触发重新构建时忽略 `bundle.write()` 步骤。
+该选项用于决定是否在触发重新构建时忽略 `bundle.write()` 步骤。
 
 ### 废弃选项(Deprecated options)
 
