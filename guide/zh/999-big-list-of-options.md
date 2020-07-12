@@ -1247,21 +1247,21 @@ const element = angular.element;
 
 ### 实验选项(Experimental options)
 
-这些选项反应了尚未完全确定的新功能。因此，可行性，行为和用法在次要版本中可能发生变化。
+这些选项反应了尚未完全确定的新功能。因此，它们的可行性、行为和用法在次要版本中可能发生变化。
 
 #### experimentalCacheExpiry
 类型：`number`<br>
 命令行参数：`--experimentalCacheExpiry <numberOfRuns>`<br>
 默认值：`10`
 
-用于确定在多少次执行以后，应该删除不再被插件使用的静态缓存。
+该选项用于确定在多少次执行以后，应该删除不再被插件使用的静态缓存。
 
 #### perf
 类型：`boolean`<br>
 命令行参数：`--perf`/`--no-perf`<br>
 默认值：`false`
 
-决定是否收集打包执行耗时。当使用命令行或者配置为监事，将会展示与当前构建进程有关的详细指标。当在 [JavaScript API](guide/en/#javascript-api) 中使用试试，返回的 bundle 对象将包含额外的 `getTimings()` 函数，可以随时调用该函数来查找所有累计的指标。
+该选项用于决定是否收集打包执行耗时。当使用命令行或者配置文件时，将会展示与当前构建过程有关的详细指标。当在 [JavaScript API](guide/en/#javascript-api) 中使用时，返回的 bundle 对象将包含额外的 `getTimings()` 函数，可以随时调用该函数来获取所有累计的指标。
 
 `getTimings()` 返回以下对象形式：
 
@@ -1274,7 +1274,7 @@ const element = angular.element;
 }
 ```
 
-对于每个值，第一个数值表示经过的时间，第二个数值表示内存消耗的变化，第三个数值表示此步骤完成后的总内存消耗。这些步骤的顺序是使用 `Object.keys` 确定的。Top level 键以 `#` 开头，并包含嵌套步骤的耗时，例如，在上面例子值班费的 `# BUILD` 步骤耗时（698ms）包含了 `## parse modules` 步骤的耗时（539ms）。
+对于每个键的值，是一个数组，其中，第一个数值表示经过的时间，第二个数值表示内存消耗的变化，第三个数值表示此步骤完成后的总内存消耗。这些步骤的顺序是通过 `Object.keys` 确定的。Top level 键以 `#` 开头，包含嵌套步骤的耗时，例如，在上面例子中的 `# BUILD` 步骤耗时（698ms）包含了 `## parse modules` 步骤的耗时（539ms）。
 
 ### 观察选项(Watch options)
 
