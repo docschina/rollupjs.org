@@ -1358,9 +1358,9 @@ export default {
 
 该选项用于决定是否在触发重新构建时忽略 `bundle.write()` 步骤。
 
-### 废弃选项(Deprecated options)
+### 废弃选项（Deprecated options）
 
-☢️ 这些选项已经废弃，可能从未来的 Rollup 版本中删除。
+☢️ 这些选项已经废弃，可能从未来的 Rollup 版本中移除。
 
 #### inlineDynamicImports
 请使用具有相同签名的 [`output.inlineDynamicImports`](guide/en/#outputinlinedynamicimports) 选项代替。
@@ -1377,7 +1377,7 @@ export default {
 命令行参数：`--dynamicImportFunction <name>`<br>
 默认值：`import`
 
-当输出为 ES 模块时，该选项将会把动态导入函数重命名为所选名称。这对于生成使用 [this one](https://github.com/uupaa/dynamic-import-polyfill) 这样的动态导入 polyfill 的代码非常有用。
+当输出为 ES 模块时，该选项将会把动态导入函数重命名为该选项指定的名称。这对于使用了 dynamic import polyfil 的代码非常有用，比如[这个 dynamic import polyfill 库](https://github.com/uupaa/dynamic-import-polyfill)。
 
 #### treeshake.pureExternalModules
 请使用 [`treeshake.moduleSideEffects: 'no-external'`](guide/en/#treeshake) 选项代替。<br>
@@ -1385,25 +1385,25 @@ export default {
 命令行参数：`--treeshake.pureExternalModules`/`--no-treeshake.pureExternalModules`<br>
 默认值：`false`
 
-如果值为 `true`, Rollup 会假设从没有任何导入文件的外部依赖没有其他副作用。
+如果该选项的值为 `true`, 那么Rollup 会假定没有任何导入的外部依赖没有其他副作用，就如修改全局变量或者记录日志。
 
 ```javascript
-// input file
+// 输入文件
 import {unused} from 'external-a';
 import 'external-b';
 console.log(42);
 ```
 
 ```javascript
-// output with treeshake.pureExternalModules === false
+// 在 treeshake.pureExternalModules === false 时的输出
 import 'external-a';
 import 'external-b';
 console.log(42);
 ```
 
 ```javascript
-// output with treeshake.pureExternalModules === true
+// 在 treeshake.pureExternalModules === true 时的输出
 console.log(42);
 ```
 
-你也可以提供一个被视为纯净的外部依赖 id 的列表，或者是一个可以在移除外部导入时调用的函数。
+该选项也支持一个被视为纯净的外部依赖的 id 列表，或者是一个可以在移除外部导入时调用的函数。
