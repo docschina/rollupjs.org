@@ -1,5 +1,4 @@
 ---
-title: Big list of options
 title: 选项大列表
 ---
 
@@ -36,7 +35,7 @@ export default {
 rollup -i src/main.js ... -e foo,bar,baz
 ```
 
-当该选项的值为函数时，它会提供三个参数 `(id, parent, isResolved)` ，这些参数可以为你提供更细粒度的控制：
+当该选项的值为函数时，它会提供三个参数 `(id, parent, isResolved)`，这些参数可以为你提供更细粒度的控制：
 
 * `id` 值为相关模块的 id
 * `parent` 值为执行导入的模块的 id
@@ -44,7 +43,7 @@ rollup -i src/main.js ... -e foo,bar,baz
 
 创建 iife 或 umd 格式的包时，你需要通过 `output.globals` 选项来提供全局变量名称，以替换外部导入。
 
-如果被标记为”外部依赖“的导入模块是相对导入（即以 `./` 或 `../`开头）模块，rollup 会把模块 id 解析为系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，这些导入模块将会再次被转换为相对导入。例如：
+如果被标记为“外部依赖“的导入模块是相对导入（即以 `./` 或 `../`开头）模块，rollup 会把模块 id 解析为系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，这些导入模块将会再次被转换为相对导入。例如：
 
 ```js
 // 输入
@@ -122,7 +121,7 @@ rollup "main entry"="src/entry 1.js" "src/other entry.js" --format es
 类型：`string`<br>
 命令行参数：`-o`/`--file <filename>`
 
-该选项用于指定要写入的文件名。如果该选项生效，那么同时也会生成源码映射（sourcemaps）文件。只有当生成的 chunk 不超过一个时，该选项才会生效。
+该选项用于指定要写入的文件名。如果该选项生效，那么同时也会生成源码映射（sourcemap）文件。只有当生成的 chunk 不超过一个时，该选项才会生效。
 
 #### output.format
 类型：`string`<br>
