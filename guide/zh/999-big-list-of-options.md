@@ -66,7 +66,7 @@ console.log(x);
 console.log(x);
 ```
 
-如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 入口文件或所有入口文件的公共基础目录。
+如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 与入口文件或所有入口文件位于相同的目录。
 
 #### input
 类型：`string | string [] | { [entryName: string]: string }`<br>
