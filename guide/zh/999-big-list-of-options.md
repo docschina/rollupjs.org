@@ -8,7 +8,7 @@ title: 选项大列表
 类型：`(string | RegExp)[] | RegExp | string | (id: string, parentId: string, isResolved: boolean) => boolean`<br>
 命令行参数：`-e`/`--external <external-id,another-external-id,...>`
 
-该选项用于匹配需要保留在包（bundle）外部的模块，它的值可以是一个接收模块 `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含）的函数，也可以是一个由模块 ID 构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外，它还可以是单个模块 ID 或者单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
+该选项用于匹配需要保留在 bundle 外部的模块，它的值可以是一个接收模块 `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含）的函数，也可以是一个由模块 ID 构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外，它还可以是单个模块 ID 或者单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
 
 1. import 语句中外部依赖的名称。例如，如果标记 `import "dependency.js"` 为外部依赖，那么模块 ID 为 `"dependency.js"`，而如果标记 `import "dependency"` 为外部依赖，那么模块 ID 为 `"dependency"`。
 2. 绝对路径。（例如，文件的绝对路径）
@@ -72,7 +72,7 @@ console.log(x);
 类型：`string | string [] | { [entryName: string]: string }`<br>
 命令行参数：`-i`/`--input <filename>`
 
-该选项是指打包的入口文件，比如你的 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用数组或者对象作为 input 的值，那么它们将被打包到独立的输出区块（chunks）。除非使用 [`output.file`](guide/en/#outputfile) 选项，否则生成的区块名称会根据 [`output.entryFileNames`](guide/en/#outputentryfilenames) 选项来确定。该选项值为对象形式时，对象的键将作为文件名中的 `[name]`，而对于值为数组形式，数组的值将作为入口的文件名。
+该选项是指 bundle 的入口文件，比如你的 `main.js` 或 `app.js` 或 `index.js` 文件。如果你使用数组或者对象作为 input 的值，那么它们将被打包到独立的输出区块（chunks）。除非使用 [`output.file`](guide/en/#outputfile) 选项，否则生成的区块名称会根据 [`output.entryFileNames`](guide/en/#outputentryfilenames) 选项来确定。该选项值为对象形式时，对象的键将作为文件名中的 `[name]`，而对于值为数组形式，数组的值将作为入口的文件名。
 
 请注意，使用对象形式时，只要在入口名称中添加 '/'，就可以将入口打包到不同的子文件夹中。下面是个例子，根据 `entry-a.js` 和 `entry-b/index.js`，至少产生两个入口区块（chunks），其中 `index.js` 将输出在 `entry-b` 文件夹中：
 
@@ -140,7 +140,7 @@ rollup "main entry"="src/entry 1.js" "src/other entry.js" --format es
 类型：`{ [id: string]: string } | ((id: string) => string)`<br>
 命令行参数：`-g`/`--globals <external-id:variableName,another-external-id:anotherVariableName,...>`
 
-该选项用于使用 `id: variableName` 键值对指定的、在 `umd` 或 `iife` 格式包中的外部依赖。下面就是一个外部依赖的例子：
+该选项用于使用 `id: variableName` 键值对指定的、在 `umd` 或 `iife` 格式 bundle 中的外部依赖。下面就是一个外部依赖的例子：
 
 ```js
 import $ from 'jquery';
@@ -375,7 +375,7 @@ export default {
 类型：`string | (() => string | Promise<string>)`<br>
 命令行参数：`--banner`/`--footer <text>`
 
-该选项用于在构建结果顶部添加一个字符串，或者在构建结果末尾添加一个字符串。当然，它也支持返回一个字符串的异步函数。（注意：`banner` 和 `footer` 选项不会破坏 sourcemaps。）
+该选项用于在 bundle 顶部添加一个字符串，或者在构建结果末尾添加一个字符串。当然，它也支持返回一个字符串的异步函数。（注意：`banner` 和 `footer` 选项不会破坏 sourcemaps。）
 
 ```js
 // rollup.config.js
@@ -925,7 +925,7 @@ export default {
 * `named` - 适用于导出超过一个模块的情况
 * `none` - 适用于没有导出的情况（比如，当你在构建应用而非库时）
 
-`default` 和 `named` 之间的差异会影响其他人使用你的库的方式。例如，如果该选项的值时 `default`，那么 CommonJS 用户可以通过以下方式使用你的库：
+`default` 和 `named` 之间的差异会影响其他人使用你的 bundle 的方式。例如，如果该选项的值时 `default`，那么 CommonJS 用户可以通过以下方式使用你的库：
 
 ```js
 const yourLib = require( 'your-lib' );
@@ -1025,7 +1025,7 @@ console.log(String(namespace));
 命令行参数：`--noConflict`/`--no-noConflict`<br>
 默认值：`false`
 
-该选项默认将生成额外的 `noConflict` 导出到 UMD 包。在 IIFE 场景中调用时，此方法将返回包的导出，同时将相应的全部变量恢复为先前的值。
+该选项默认将生成额外的 `noConflict` 导出到 UMD 格式的 bundle。在 IIFE 场景中调用时，此方法将返回 bundle 的导出，同时将相应的全部变量恢复为先前的值。
 
 #### output.preferConst
 类型：`boolean`<br>
@@ -1039,7 +1039,7 @@ console.log(String(namespace));
 命令行参数：`--strict`/`--no-strict`<br>
 默认值：`true`
 
-该选项用于决定是否在生成非 ES 包的顶部包含 “use strict” 用法。严格地讲，ES 模块总是使用严格模式，所以不要无缘无故禁用该选项。
+该选项用于决定是否在生成非 ES bundle 的顶部包含 “use strict” 用法。严格地讲，ES 模块总是使用严格模式，所以不要无缘无故禁用该选项。
 
 #### output.systemNullSetters
 类型：`boolean`<br>
@@ -1087,7 +1087,7 @@ export const x = 'next to original';
 命令行参数：`--treeshake`/`--no-treeshake`<br>
 默认值：`true`
 
-该选项用于决定是否应用 tree-shake 并微调 tree-shake 过程。该选项的值设置为 `false` 时，Rollup 将生成更大的包，但是可能会提高构建性能。如果你发现由 tree-shake 造成的 bug，请给我们提 issue ！
+该选项用于决定是否应用 tree-shake 并微调 tree-shake 过程。该选项的值设置为 `false` 时，Rollup 将生成更大的 bundle，但是可能会提高构建性能。如果你发现由 tree-shake 造成的 bug，请给我们提 issue ！
 将此选项的值设置为对象意味着启用 tree-shaking，并启用以下选项：
 
 **treeshake.annotations**<br>
@@ -1165,7 +1165,7 @@ console.log(42);
 命令行参数：`--treeshake.propertyReadSideEffects`/`--no-treeshake.propertyReadSideEffects`<br>
 默认值：`true`
 
-如果该选项值为 `false`，则假定读取对象的属性将永远不会有副作用。根据你的代码，禁用该属性能够显著缩小包的大小，但是如果你依赖了 geters 或非法属性访问的造成的错误，那么可能会破坏该功能。
+如果该选项值为 `false`，则假定读取对象的属性将永远不会有副作用。根据你的代码，禁用该属性能够显著缩小 bundle 的大小，但是如果你依赖了 geters 或非法属性访问的造成的错误，那么可能会破坏该功能。
 
 ```javascript
 // Will be removed if treeshake.propertyReadSideEffects === false
@@ -1376,7 +1376,7 @@ export default {
 命令行参数：`--dynamicImportFunction <name>`<br>
 默认值：`import`
 
-当输出为 ES 模块时，该选项将会把动态导入函数重命名为该选项指定的名称。这对于使用了 dynamic import polyfil 的代码非常有用，比如[这个 dynamic import polyfill 库](https://github.com/uupaa/dynamic-import-polyfill)。
+当输出为 ES bundle 时，该选项将会把动态导入函数重命名为该选项指定的名称。这对于使用了 dynamic import polyfil 的代码非常有用，比如[这个 dynamic import polyfill 库](https://github.com/uupaa/dynamic-import-polyfill)。
 
 #### treeshake.pureExternalModules
 请使用 [`treeshake.moduleSideEffects: 'no-external'`](guide/en/#treeshake) 选项代替。<br>
