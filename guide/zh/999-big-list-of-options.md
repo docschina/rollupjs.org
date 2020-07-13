@@ -8,7 +8,7 @@ title: 选项大列表
 类型：`(string | RegExp)[] | RegExp | string | (id: string, parentId: string, isResolved: boolean) => boolean`<br>
 命令行参数：`-e`/`--external <external-id,another-external-id,...>`
 
-该选项用于匹配需要保留在包（bubdle）外部的模块，它的值可以是一个接收模块 `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含）的函数，也可以是一个由模块 ID 构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外，它还可以是单个模块 ID 或者单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
+该选项用于匹配需要保留在包（bundle）外部的模块，它的值可以是一个接收模块 `id` 参数并且返回 `true`（表示排除）或 `false`（表示包含）的函数，也可以是一个由模块 ID 构成的数组，还可以是可以匹配到模块 ID 的正则表达式。除此之外，它还可以是单个模块 ID 或者单个正则表达式。匹配得到的模块 ID 应该满足以下条件之一：
 
 1. import 语句中外部依赖的名称。例如，如果标记 `import "dependency.js"` 为外部依赖，那么模块 ID 为 `"dependency.js"`，而如果标记 `import "dependency"` 为外部依赖，那么模块 ID 为 `"dependency"`。
 2. 绝对路径。（例如，文件的绝对路径）
