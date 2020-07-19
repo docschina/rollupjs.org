@@ -27,7 +27,7 @@ export default {
 };
 ```
 
-请注意，如果你想要通过 `/node_modules/` 正则表达式将 `node_modules` 中导入的包当成外部依赖处理，比如 `import {rollup} from 'rollup'` 中的 `rollup`，你须要先引入 [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve) 插件。
+请注意，如果你想要通过 `/node_modules/` 正则表达式将 `node_modules` 中引入的包当成外部依赖处理，比如 `import {rollup} from 'rollup'` 中的 `rollup`，你须要先引入 [@rollup/plugin-node-resolve](https://github.com/rollup/plugins/tree/master/packages/node-resolve) 插件。
 
 当用作命令行参数时，该选项的值为通过逗号分隔的模块 ID 列表：
 
@@ -38,12 +38,12 @@ rollup -i src/main.js ... -e foo,bar,baz
 当该选项的值为函数时，它会提供三个参数 `(id, parent, isResolved)`，这些参数可以为你提供更细粒度的控制：
 
 * `id` 值为相关模块的 id
-* `parent` 值为执行导入的模块的 id
+* `parent` 值为执行引入的模块的 id
 * `isResolved` 值为布尔值，指是否已经通过插件等方式解决模块依赖
 
-创建 `iife` 或 `umd` 格式的 bundle 时，你需要通过 `output.globals` 选项来提供全局变量名称，以替换外部导入。
+创建 `iife` 或 `umd` 格式的 bundle 时，你需要通过 `output.globals` 选项来提供全局变量名称，以替换外部引入。
 
-如果导入路径为相对路径（即以 `./` 或 `../` 开头），那么此路径会被标记为 "external"。rollup 会把模块 id 解析为系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，这些导入模块将会再次被转换为相对导入。例如：
+如果引入路径为相对路径（即以 `./` 或 `../` 开头），那么此路径会被标记为 "external"。rollup 会把模块 id 解析为系统绝对文件路径，以便不同的外部模块可以合并到一起。当写入 bundle 以后，这些引入模块将会再次被转换为相对引入。例如：
 
 ```js
 // 输入
@@ -53,7 +53,7 @@ import './nested/nested.js';
 console.log(x);
 
 // src/nested/nested.js
-// 如果导入依赖已存在，它将指向同一个文件
+// 如果引入依赖已存在，它将指向同一个文件
 import x from '../../external.js';
 console.log(x);
 
@@ -66,7 +66,7 @@ console.log(x);
 console.log(x);
 ```
 
-如果存在多个入口，rollup 会把它们转换会相对导入的方式，就像 `output.file` 或 `output.dir` 与入口文件或所有入口文件位于相同的目录。
+如果存在多个入口，rollup 会把它们转换会相对引入的方式，就像 `output.file` 或 `output.dir` 与入口文件或所有入口文件位于相同的目录。
 
 #### input
 类型：`string | string [] | { [entryName: string]: string }`<br>
@@ -232,7 +232,7 @@ this.a.b.c = ...
 #### output.plugins
 类型：`OutputPlugin | (OutputPlugin | void)[]`
 
-该选项用于指定输出插件，这是设置插件的唯一入口。你查看 [Using output plugins](guide/en/#using-output-plugins) 了解更多关于如何设置指定输出插件的信息，另外，[Plugins](guide/en/#plugin-development) 会告诉你如何写一个你自己的插件。对于从包中导入的插件，请记住要调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。返回值为 Falsy 的插件将会被忽略，这样可以用于灵活启用和禁用插件。
+该选项用于指定输出插件，这是设置插件的唯一入口。你查看 [Using output plugins](guide/en/#using-output-plugins) 了解更多关于如何设置指定输出插件的信息，另外，[Plugins](guide/en/#plugin-development) 会告诉你如何写一个你自己的插件。对于从包中引入的插件，请记住要调用引入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。返回值为 Falsy 的插件将会被忽略，这样可以用于灵活启用和禁用插件。
 
 请注意，并不是所有的插件都可以通过该选项使用。`output.plugins` 选项是受限的，例如，只有在 Rollup 的主分析阶段完成以后，在 `bundle.generate()` 或者 `bundle.write()` 阶段执行的 hooks 的插件才可以使用该选项。如果你是一个插件的作者，你可以查看 [output generation hooks](guide/en/#output-generation-hooks) 了解更多关于 hooks 的使用方法。
 
@@ -261,7 +261,7 @@ export default {
 #### plugins
 类型：`Plugin | (Plugin | void)[]`
 
-查看 [Using plugins](guide/en/#using-plugins) 文档，了解更多关于如何使用插件的信息，另外，根据 [Plugins](guide/en/#plugin-development)，你可以写一个自定义插件（动手试试看，写一个插件并不困难，你可以通过 Rollup 插件做很多拓展）。对于从包中导入的插件，请记住调用导入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。返回值为 Falsy 的插件将会被忽略，这样可以用于灵活启用和禁用插件。
+查看 [Using plugins](guide/en/#using-plugins) 文档，了解更多关于如何使用插件的信息，另外，根据 [Plugins](guide/en/#plugin-development)，你可以写一个自定义插件（动手试试看，写一个插件并不困难，你可以通过 Rollup 插件做很多拓展）。对于从包中引入的插件，请记住调用引入的函数（例如，应该使用 `commonjs()`，而不是 `commonjs`）。返回值为 Falsy 的插件将会被忽略，这样可以用于灵活启用和禁用插件。
 
 ```js
 // rollup.config.js
@@ -284,7 +284,7 @@ export default (async () => ({
 }))();
 ```
 
-（上述例子还演示了如何使用异步 IIFE 和动态导入来避免导入会使 Rollup 打包变慢的不必要的模块。）
+（上述例子还演示了如何使用异步 IIFE 和动态引入来避免引入会使 Rollup 打包变慢的不必要的模块。）
 
 ### 进阶功能（Advanced functionality）
 
@@ -440,14 +440,14 @@ export default {
 命令行参数：`--hoistTransitiveImports`/`--no-hoistTransitiveImports`<br>
 默认值：`true`
 
-默认情况下，创建多个块 (chunk) 时，入口块的可传递导入 (transitive imports) 将会以空导入的形式被打包。详细信息和背景请查阅 ["为什么在拆分代码时我的输入块中会出现其他导入？"](guide/en/#why-do-additional-imports-turn-up-in-my-entry-chunks-when-code-splitting)。将值设置为 `false` 将禁用此行为。当使用 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项时，该选项会被忽略，使得永远不会取消导入。
+默认情况下，创建多个块 (chunk) 时，入口块的可传递引入 (transitive imports) 将会以空引入的形式被打包。详细信息和背景请查阅 ["为什么在拆分代码时我的输入块中会出现其他引入？"](guide/en/#why-do-additional-imports-turn-up-in-my-entry-chunks-when-code-splitting)。将值设置为 `false` 将禁用此行为。当使用 [`output.preserveModules`](guide/en/#outputpreservemodules) 选项时，该选项会被忽略，使得永远不会取消引入。
 
 #### output.inlineDynamicImports
 类型：`boolean`<br>
 命令行参数：`--inlineDynamicImports`/`--no-inlineDynamicImports`
 默认值：`false`
 
-该选项用于内联动态导入，而不是用于创建包含新 Chunk 的独立 bundle。它只在单一输入源时产生作用。请注意，它会影响执行顺序：如果该模块是内联动态导入，那么它将会被立即执行。
+该选项用于内联动态引入，而不是用于创建包含新 Chunk 的独立 bundle。它只在单一输入源时产生作用。请注意，它会影响执行顺序：如果该模块是内联动态引入，那么它将会被立即执行。
 
 #### output.interop
 类型：`boolean`<br>
@@ -477,7 +477,7 @@ export default {
 
 该选项允许你创建自定义的公共模块。当它的值为对象形式时，每个属性代表一个大块，其中包含列出的模块及其所有依赖（除非他们已经在其他 chunk 中，否则将会是模块图（module graph）的一部分）。chunk 的名称由对象属性的键（key）决定。
 
-请注意，列出的模块本身不一定是模块图（module graph）的一部分，该特性对于使用 `@rollup/plugin-node-resolve` 并从中使用深度导入（deep imports）是非常有用的。例如：
+请注意，列出的模块本身不一定是模块图（module graph）的一部分，该特性对于使用 `@rollup/plugin-node-resolve` 并从中使用深度引入（deep imports）是非常有用的。例如：
 
 ```
 manualChunks: {
@@ -501,7 +501,7 @@ manualChunks(id) {
 
 当 `manualChunks` 使用函数形式时，它的第二个参数是一个对象，包含 `getMouduleInfo` 函数和 `getMoudleIds` 函数，其工作方式与插件上下文中的 [`this.getModuleInfo`](guide/en/#thisgetmoduleinfomoduleid-string--moduleinfo) 和 [`this.getModuleIds`](guide/en/#thisgetmoduleids--iterableiteratorstring) 相同。
 
-该选项可以用于根据模块在模块图中的位置动态确定它应该被放在哪个自定义 chunk 中。例如，考虑这样一个场景，有一组组件，每个组件动态导入一组已转译的依赖，即
+该选项可以用于根据模块在模块图中的位置动态确定它应该被放在哪个自定义 chunk 中。例如，考虑这样一个场景，有一组组件，每个组件动态引入一组已转译的依赖，即
 
 ```js
 // 在 “foo” 组件中
@@ -515,7 +515,7 @@ function getTranslatedStrings(currentLanguage) {
 }
 ```
 
-如果将很多这样的组件一起使用，则会导致生成很多很小的动态导入 chunk：尽管我们知道由同一块导入的所有相同语言的语言文件将始终一起使用，但是 Rollup 并不知道。
+如果将很多这样的组件一起使用，则会导致生成很多很小的动态引入 chunk：尽管我们知道由同一块引入的所有相同语言的语言文件将始终一起使用，但是 Rollup 并不知道。
 
 下面代码将会合并仅由单个入口使用的相同语言的所有文件：
 
@@ -667,7 +667,7 @@ var main = 42;
 module.exports = main;
 ```
 
-如果其他模块导入此文件，它们可以通过以下方式访问默认导出
+如果其他模块引入此文件，它们可以通过以下方式访问默认导出
 
 ```js
 const main = require('./main.js');
@@ -988,7 +988,7 @@ exports.x = external.x;
 命令行参数：`--freeze`/`--no-freeze`<br>
 默认值：`true`
 
-该选项用于指定是否使用 `Object.freeze()` 冻结动态访问的导入对象的命名空间，例如 `import * as namespaceImportObject from...`。
+该选项用于指定是否使用 `Object.freeze()` 冻结动态访问的引入对象的命名空间，例如 `import * as namespaceImportObject from...`。
 
 #### output.indent
 类型：`boolean | string`<br>
@@ -1080,7 +1080,7 @@ export const x = 'next to original';
 命令行参数：`--shimMissingExports`/`--no-shimMissingExports`<br>
 默认值：`false`
 
-如果该选项值为 `true`，那么从未定义绑定的文件中导入依赖时，打包不会失败。相反，将为这些绑定创建值为 `undefined` 的新变量。
+如果该选项值为 `true`，那么从未定义绑定的文件中引入依赖时，打包不会失败。相反，将为这些绑定创建值为 `undefined` 的新变量。
 
 #### treeshake
 类型：`boolean | { annotations?: boolean, moduleSideEffects?: ModuleSideEffectsOption, propertyReadSideEffects?: boolean, tryCatchDeoptimization?: boolean, unknownGlobalSideEffects?: boolean }`<br>
@@ -1114,7 +1114,7 @@ class Impure {
 命令行参数：`--treeshake.moduleSideEffects`/`--no-treeshake.moduleSideEffects`/`--treeshake.moduleSideEffects no-external`<br>
 默认值：`true`
 
-如果该选项的值为 `false`，则假定，像改变全局变量或不执行检查就记录等行为一样，没有导入任何内容的模块和外部依赖没有其他副作用。对于外部依赖，该选项将影响未使用的 import：
+如果该选项的值为 `false`，则假定，像改变全局变量或不执行检查就记录等行为一样，没有引入任何内容的模块和外部依赖没有其他副作用。对于外部依赖，该选项将影响未使用的 import：
 
 ```javascript
 // input file
@@ -1376,7 +1376,7 @@ export default {
 命令行参数：`--dynamicImportFunction <name>`<br>
 默认值：`import`
 
-当输出为 ES bundle 时，该选项将会把动态导入函数重命名为该选项指定的名称。这对于使用了 dynamic import polyfil 的代码非常有用，比如[这个 dynamic import polyfill 库](https://github.com/uupaa/dynamic-import-polyfill)。
+当输出为 ES bundle 时，该选项将会把动态引入函数重命名为该选项指定的名称。这对于使用了 dynamic import polyfil 的代码非常有用，比如[这个 dynamic import polyfill 库](https://github.com/uupaa/dynamic-import-polyfill)。
 
 #### treeshake.pureExternalModules
 请使用 [`treeshake.moduleSideEffects: 'no-external'`](guide/en/#treeshake) 选项代替。<br>
@@ -1384,7 +1384,7 @@ export default {
 命令行参数：`--treeshake.pureExternalModules`/`--no-treeshake.pureExternalModules`<br>
 默认值：`false`
 
-如果该选项的值为 `true`, 那么Rollup 会假定没有任何导入的外部依赖没有其他副作用，就如修改全局变量或者记录日志。
+如果该选项的值为 `true`, 那么Rollup 会假定没有任何引入的外部依赖没有其他副作用，就如修改全局变量或者记录日志。
 
 ```javascript
 // 输入文件
@@ -1405,4 +1405,4 @@ console.log(42);
 console.log(42);
 ```
 
-该选项也支持一个被视为纯净的外部依赖的 id 列表，或者是一个可以在移除外部导入时调用的函数。
+该选项也支持一个被视为纯净的外部依赖的 id 列表，或者是一个可以在移除外部引入时调用的函数。
